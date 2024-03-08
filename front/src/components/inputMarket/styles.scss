@@ -1,0 +1,47 @@
+@import "../../styles/variables.scss";
+
+.container-input-market{
+    width: 100%;
+    min-height: 92px;
+    border-radius: 12px;
+    border: 1px solid $color-gray-medium;
+    padding: 15px 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    .container-input-market-and-dropdown{
+        display: flex;
+    }
+
+    .input-market{
+        border: none;
+        outline: none;
+        padding: 0px 4px;
+        width: 100%;
+    }
+    .btn{
+        border: none;
+        width: 70px;
+        display: flex;
+        justify-content: flex-start;
+      }
+
+    .dropdown-toggle::after{
+        display: none !important;
+      }
+
+      .dropdown-row-market{
+        width: 100%;
+        height: 40px;
+        padding: 0px 10px;
+        gap: 10px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
+
+      .dropdown-row-market:hover{
+        opacity: 0.5;
+        cursor: pointer;
+      }
+}

@@ -1,0 +1,48 @@
+@import "../../styles/variables.scss";
+
+.container-card-and-table-global {
+  display: flex;
+  flex-direction: row;
+  gap: 50px;
+  margin-bottom: 20px;
+
+  .container-table-and-balances {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  @media (max-width: 1040px) {
+    gap: 20px;
+  }
+
+  @media (max-width: 1000px) {
+    flex-direction: column;
+  }
+}
+
+.container-table-last-transaction-and-my-transaction{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
+  .container-table-style-default {
+    flex:1;
+  }
+
+  @media (max-width: 990px) {
+    flex-direction: column;
+    gap: 0px;
+    .container-table-style-default{
+      width: 100%;
+    }
+  }
+}
+
+.container-table-style-default {
+  padding: 20px 20px 20px 20px;
+  border: 1px solid $color-header-border;
+  border-radius: 20px;
+  margin-bottom: 20px;
+}

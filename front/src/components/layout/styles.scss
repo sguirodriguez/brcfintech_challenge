@@ -1,0 +1,69 @@
+@import "../../styles/variables.scss";
+
+.container-layout-default {
+  background-color: $color-gray;
+  width: 100%;
+  height: 100vh;
+}
+
+.main-layout-default {
+  width: 100%;
+  padding-top: 70px;
+  display: flex;
+  flex-direction: row;
+  overflow-y: auto;
+}
+
+.sidebar-layout-default{
+  width: 170px;
+  min-height: 100% !important;
+  background-color: $color-white;
+  border-right: 1px solid $color-header-border;
+  padding-top: 22px;
+  padding-left: 12px;
+  padding-right: 12px;
+  position: fixed;
+  svg{
+    margin-bottom: 2px;
+  }
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+
+  .sidebar-option{
+    width: 100%;
+    height: 40px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    background-color: transparent;
+    align-items: center;
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  .sidebar-option:hover{
+    background-color: $color-gray-semi-medium;
+    cursor: pointer;
+  }
+}
+
+.content-layout-default{
+  flex: 1;
+  min-height: calc(100vh - 70px);
+  margin-left: 170px;
+  background-color: $color-white;
+  overflow-y: auto; 
+  padding-top: 24px;
+  padding-left: 30px;
+  padding-right: 30px;
+
+  @media (max-width: 768px) {
+    margin-left: 0px;
+  }
+
+  @media (max-width: 676px) {
+    margin-left: 0px;
+  }
+}
