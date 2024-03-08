@@ -38,11 +38,15 @@ module.exports = {
         allowNull: false,
       },
       type: {
-        type: Sequelize.ENUM('buy' | 'sell'),
+        type: Sequelize.ENUM({
+          values: ['buy','sell']
+        }),
         allowNull: false,
       },
       status: {
-        type: Sequelize.ENUM('pending' | 'completed' | 'canceled'),
+        type:  Sequelize.ENUM({
+          values: ['pending', 'completed', 'canceled']
+        }),
         allowNull: false,
       },
       createdAt: {

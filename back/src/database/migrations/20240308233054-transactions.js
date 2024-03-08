@@ -42,7 +42,9 @@ module.exports = {
         allowNull: false,
       },
       kind: {
-        type: Sequelize.ENUM('credit' | 'debit'),
+        type: Sequelize.ENUM({
+          values: ['credit', 'debit']
+        }),
         allowNull: false,
       },
       createdAt: {
