@@ -3,21 +3,29 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('users', {
+    await queryInterface.createTable('currencies', {
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true
       },
-      username: {
+      name: {
         type: Sequelize.STRING,
         allowNull: false,
         unique: true,
       },
-      token: {
+      description: {
         type: Sequelize.STRING,
-        allowNull: false
+      },
+      symbol: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
+      },
+      value: {
+        type: Sequelize.DECIMAL(20, 8),
+        allowNull: false,
       },
       createdAt: {
         type: Sequelize.DATE,
@@ -33,6 +41,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('users')
+    await queryInterface.dropTable('currencies')
   }
 };
