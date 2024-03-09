@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Request, SendResponse } from "./types";
 
-const BASE_URL = "https://api-dte.sme-mogidascruzes.sp.gov.br/"; 
+const BASE_URL = "http://localhost:3333/";
 
 export const request = async ({
   method,
@@ -9,7 +9,7 @@ export const request = async ({
   body,
   headers,
   params,
-  baseURL
+  baseURL,
 }: Request) => {
   try {
     const { status, statusText, data } = await axios.request({

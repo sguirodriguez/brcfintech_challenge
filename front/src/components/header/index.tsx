@@ -6,7 +6,7 @@ import "./styles.scss";
 import { SlMenu, SlUser } from "react-icons/sl";
 
 const Header = () => {
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const navigate = useNavigate();
   return (
     <div className="container-header-default">
@@ -37,7 +37,8 @@ const Header = () => {
           </ul>
         </div>
       </div>
-      <div className="right">
+      <div className="right d-flex align-items-center gap-3">
+        <TextComponent>Olá, {user?.username}</TextComponent>
         <div className="dropdown">
           <button
             className="btn btn-secondary bg-transparent"

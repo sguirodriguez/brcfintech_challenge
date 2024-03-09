@@ -1,104 +1,58 @@
-import React, {
-  ReactNode,
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import { constants } from "../utils/constants";
-
+import { ReactNode, createContext, useContext, useState } from "react";
+import useSocket from "hooks/socket";
 interface User {
   username: string;
   jwtToken: string;
 }
-
 interface AuthContextType {
   user: User | null;
-  signed: boolean;
-  signIn: () => Promise<{ data: boolean; error: boolean }>;
+  signIn: (value: string) => Promise<{ data: boolean; error: boolean }>;
   signOut: () => void;
+  socketInstance: any;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const handleSignIn = (): Promise<{
+export const handleSignIn = (
+  username: string
+): {
   data: {
     username: string;
     jwtToken: string;
   };
   error?: boolean;
-}> => {
-  return new Promise((resolve) => {
-    resolve({
-      data: {
-        username: "Samuel Ribeiro",
-        jwtToken: "219321hijsndu2ub23iu2j1b312321",
-      },
-    });
-  });
+} => {
+  return {
+    data: {
+      username: "Samuel Ribeiro",
+      jwtToken: "219321hijsndu2ub23iu2j1b312321",
+    },
+  };
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const { socketInstance } = useSocket();
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
 
-  const signIn = async () => {
-    setLoading(true);
-    const { data, error } = await handleSignIn();
-    setLoading(false);
+  const signIn = async (username: string) => {
+    const { data, error } = await handleSignIn(username);
 
     if (error) {
-      localStorage.clear();
+      setUser(null);
       return { data: false, error: true };
     }
 
     setUser(data);
-    localStorage.setItem(constants.USER, JSON.stringify(data));
-    window.location.href = "/dashboard";
     return { data: true, error: false };
   };
 
   const signOut = () => {
     setUser(null);
-    localStorage.clear();
   };
-
-  const loadStorageData = () => {
-    setLoading(true);
-    const storageUser = localStorage.getItem(constants.USER);
-    setLoading(false);
-
-    if (storageUser) {
-      setUser(JSON.parse(storageUser));
-    }
-  };
-
-  useEffect(() => {
-    loadStorageData();
-  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, signed: !!user, signIn, signOut }}>
-      {loading ? (
-        <div
-          style={{
-            width: "100%",
-            height: "100vh",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "gray",
-          }}
-        >
-          <div
-            className="spinner-border text-light"
-            role="status"
-            style={{ width: 100, height: 100 }}
-          />
-        </div>
-      ) : (
-        children
-      )}
+    <AuthContext.Provider value={{ user, signIn, signOut, socketInstance }}>
+      {children}
     </AuthContext.Provider>
   );
 };

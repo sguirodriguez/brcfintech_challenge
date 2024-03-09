@@ -5,7 +5,6 @@ import Header from "../header";
 import { SlGrid } from "react-icons/sl";
 import TextComponent from "../text";
 import { useLocation, useNavigate } from "react-router-dom";
-import { constants } from "../../utils/constants";
 import { useAuth } from "../../context/auth";
 
 export const sidebarOptions = [
@@ -19,19 +18,19 @@ export const sidebarOptions = [
 const Layout = ({ children }: { children?: ReactNode }) => {
   const location = useLocation();
   const navigation = useNavigate();
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
 
   const verifyUserIsLogged = () => {
-    const storageUser = localStorage.getItem(constants.USER);
-
-    if (location.pathname.includes("dashboard") && !storageUser) {
+    if (location.pathname.includes("dashboard") && !user) {
       signOut();
       return navigation("/login");
     }
   };
 
   useEffect(() => {
-    verifyUserIsLogged();
+    if (location.pathname.includes("/dashboard")) {
+      verifyUserIsLogged();
+    }
   }, [location.pathname]);
 
   return (
