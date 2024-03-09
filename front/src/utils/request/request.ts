@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Request, SendResponse } from "./types";
 
-const BASE_URL = "http://localhost:3333/";
+const BASE_URL = "http://localhost:3333";
 
 export const request = async ({
   method,

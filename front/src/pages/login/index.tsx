@@ -2,6 +2,7 @@ import { useState } from "react";
 import cryptoImage from "../../assets/images/crypto.png";
 import { useAuth } from "../../context/auth";
 import { useNavigate } from "react-router-dom";
+
 const Login = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [value, setValue] = useState("");
@@ -12,18 +13,20 @@ const Login = () => {
     setValue(value);
   };
 
-  const handleSignIn = async (event: any) => {
+  const handleSignIn = async (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
     event.preventDefault();
 
     setLoading(true);
-    const { error } = await signIn(value);
+    const { data, error } = await signIn(value);
     setLoading(false);
 
     if (error) {
       return;
     }
 
-    return navigation("/dashboard");
+    return navigation(`/dashboard/${data?.username}/${data?.token}`);
   };
 
   return (

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/auth";
 import { sidebarOptions } from "../layout";
 import TextComponent from "../text";
@@ -6,7 +6,8 @@ import "./styles.scss";
 import { SlMenu, SlUser } from "react-icons/sl";
 
 const Header = () => {
-  const { signOut, user } = useAuth();
+  const { username, token } = useParams();
+  const { signOut } = useAuth();
   const navigate = useNavigate();
   return (
     <div className="container-header-default">
@@ -38,7 +39,7 @@ const Header = () => {
         </div>
       </div>
       <div className="right d-flex align-items-center gap-3">
-        <TextComponent>Olá, {user?.username}</TextComponent>
+        <TextComponent>Olá, {username}</TextComponent>
         <div className="dropdown">
           <button
             className="btn btn-secondary bg-transparent"
@@ -54,7 +55,10 @@ const Header = () => {
                 className="dropdown-item"
                 type="button"
                 onClick={() => {
-                  signOut();
+                  signOut({
+                    username,
+                    token,
+                  });
                   navigate("/login");
                 }}
               >

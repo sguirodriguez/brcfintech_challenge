@@ -4,8 +4,7 @@ import "./styles.scss";
 import Header from "../header";
 import { SlGrid } from "react-icons/sl";
 import TextComponent from "../text";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/auth";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 export const sidebarOptions = [
   {
@@ -18,11 +17,9 @@ export const sidebarOptions = [
 const Layout = ({ children }: { children?: ReactNode }) => {
   const location = useLocation();
   const navigation = useNavigate();
-  const { user, signOut } = useAuth();
-
+  const { username, token } = useParams();
   const verifyUserIsLogged = () => {
-    if (location.pathname.includes("dashboard") && !user) {
-      signOut();
+    if (location.pathname.includes("dashboard") && !username && !token) {
       return navigation("/login");
     }
   };

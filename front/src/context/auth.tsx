@@ -1,57 +1,56 @@
-import { ReactNode, createContext, useContext, useState } from "react";
+import { ReactNode, createContext, useContext } from "react";
 import useSocket from "hooks/socket";
+import request from "utils/request/request";
+import { Socket } from "socket.io-client";
+
 interface User {
   username: string;
-  jwtToken: string;
+  token: string;
 }
 interface AuthContextType {
-  user: User | null;
-  signIn: (value: string) => Promise<{ data: boolean; error: boolean }>;
-  signOut: () => void;
-  socketInstance: any;
+  signIn: (value: string) => Promise<{
+    data?: User;
+    error?: boolean;
+  }>;
+  signOut: ({ username, token }: { username: string; token: string }) => void;
+  socketInstance: Socket<any, any>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const handleSignIn = (
-  username: string
-): {
-  data: {
-    username: string;
-    jwtToken: string;
-  };
-  error?: boolean;
-} => {
-  return {
-    data: {
-      username: "Samuel Ribeiro",
-      jwtToken: "219321hijsndu2ub23iu2j1b312321",
-    },
-  };
-};
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { socketInstance } = useSocket();
-  const [user, setUser] = useState<User | null>(null);
 
   const signIn = async (username: string) => {
-    const { data, error } = await handleSignIn(username);
+    const { data, error } = await request({
+      method: "POST",
+      path: "/login",
+      body: {
+        username,
+      },
+    });
 
     if (error) {
-      setUser(null);
-      return { data: false, error: true };
+      return { error: true };
     }
 
-    setUser(data);
-    return { data: true, error: false };
+    socketInstance.emit("login", {
+      username: data.username,
+      token: data.token,
+    });
+
+    return { data: data as User };
   };
 
-  const signOut = () => {
-    setUser(null);
+  const signOut = ({ username, token }) => {
+    socketInstance.emit("logout", {
+      username,
+      token,
+    });
   };
 
   return (
-    <AuthContext.Provider value={{ user, signIn, signOut, socketInstance }}>
+    <AuthContext.Provider value={{ signIn, signOut, socketInstance }}>
       {children}
     </AuthContext.Provider>
   );
