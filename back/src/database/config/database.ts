@@ -1,20 +1,19 @@
-const dotenv = require('dotenv');
 import { Options } from "sequelize";
-dotenv.config();
+import configuration from "../../config";
 
 const config: Options = {
-  database: process.env.DB_DATABASE,
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT),
+  database: configuration.database.name,
+  username: configuration.database.username,
+  password: configuration.database.password,
+  host: configuration.database.host,
+  port: Number(configuration.database.port),
   dialect: "postgres",
   dialectOptions: {
     ssl: {
       require: true,
       rejectUnauthorized: false,
     },
-  }
+  },
 };
 
 export = config;
