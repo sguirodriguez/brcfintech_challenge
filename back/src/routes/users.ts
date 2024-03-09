@@ -1,6 +1,6 @@
 const { Router } = require("express");
 import { Request, Response } from "express";
-import createUser from "../controllers/user/createUser";
+import createUser from "../controllers/user/create";
 const router = Router();
 
 router.post("", async (request: Request, response: Response) => {
