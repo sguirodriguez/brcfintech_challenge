@@ -5,14 +5,31 @@ import TextComponent from "components/text";
 import Balance from "components/balance";
 import btcIcon from "../../assets/icons/btc-icon.svg";
 import usdIcon from "../../assets/icons/usd-icon.svg";
-const Home = () => {
+import { BalanceTypes } from "./controller";
+
+const ScreenHome = ({
+  handlers,
+}: {
+  handlers: {
+    balances: BalanceTypes[] | null;
+  };
+}) => {
+  const { balances } = handlers;
   return (
     <Layout>
       <div className="container-card-and-table-global">
         <div className="container-table-and-balances">
           <div className="balances">
-            <Balance title="Saldo BTC" value="0.2333" coin="BTC" />
-            <Balance title="Saldo USD" value="123" coin="USD" />
+            {balances?.map((item, index) => {
+              return (
+                <Balance
+                  key={item.id + index}
+                  title={`Saldo ${item.currencies.symbol}`}
+                  value={item.balance}
+                  coin={item.currencies.symbol}
+                />
+              );
+            })}
           </div>
           <div className="balances">
             <Balance
@@ -213,4 +230,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default ScreenHome;

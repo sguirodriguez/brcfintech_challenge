@@ -27,7 +27,7 @@ class CreateUser {
       },
     });
 
-    const token = jwt.generateToken(user);
+    const token = jwt.generateToken({ username: user.username });
 
     if (hasUserRegistered?.dataValues) {
       const userUpdated = await hasUserRegistered.update({

@@ -3,6 +3,8 @@ import createWallet from "../controllers/wallets/create";
 import findWallet from "../controllers/wallets/find";
 import updateWallet from "../controllers/wallets/update";
 import deleteWallet from "../controllers/wallets/delete";
+import findUserBalances from "../controllers/wallets/findUserBalances";
+import middlewareAuth from "../middleware/auth";
 
 const router = Router();
 
@@ -83,5 +85,25 @@ router.delete("", async (request: Request, response: Response) => {
     });
   }
 });
+
+router.get(
+  "/balances",
+  middlewareAuth,
+  async (request: Request, response: Response) => {
+    try {
+      const token = request.headers.authorization as string;
+
+      const result = await findUserBalances.execute({
+        token,
+      });
+
+      return response.status(result.status).send(result.response);
+    } catch (error) {
+      return response.status(500).json({
+        error,
+      });
+    }
+  }
+);
 
 export default router;

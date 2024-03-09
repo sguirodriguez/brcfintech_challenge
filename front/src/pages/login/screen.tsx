@@ -1,33 +1,17 @@
-import { useState } from "react";
 import cryptoImage from "../../assets/images/crypto.png";
-import { useAuth } from "../../context/auth";
-import { useNavigate } from "react-router-dom";
 
-const Login = () => {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [value, setValue] = useState("");
-  const navigation = useNavigate();
-  const { signIn } = useAuth();
-
-  const handleChangeValue = (value: string) => {
-    setValue(value);
+const ScreenLogin = ({
+  handlers,
+}: {
+  handlers: {
+    loading: boolean;
+    handleChangeValue: (value: string) => void;
+    handleSignIn: (
+      event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    ) => Promise<void>;
   };
-
-  const handleSignIn = async (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    event.preventDefault();
-
-    setLoading(true);
-    const { data, error } = await signIn(value);
-    setLoading(false);
-
-    if (error) {
-      return;
-    }
-
-    return navigation(`/dashboard/${data?.username}/${data?.token}`);
-  };
+}) => {
+  const { loading, handleChangeValue, handleSignIn } = handlers;
 
   return (
     <div className="min-vw-100 min-vh-100 d-flex justify-content-center align-items-center">
@@ -79,4 +63,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ScreenLogin;

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Request, SendResponse } from "./types";
+import { parseQueryString } from "utils/utils";
 
 const BASE_URL = "http://localhost:3333";
 
@@ -12,9 +13,15 @@ export const request = async ({
   baseURL,
 }: Request) => {
   try {
+    const token = parseQueryString(window.location.href);
+    const hasAuthorization = token ? { Authorization: `Bearer ${token}` } : {};
+
     const { status, statusText, data } = await axios.request({
       baseURL: baseURL || BASE_URL,
-      headers,
+      headers: {
+        ...headers,
+        ...hasAuthorization,
+      },
       method,
       url: path,
       data: body,
