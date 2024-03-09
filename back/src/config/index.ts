@@ -11,6 +11,7 @@ interface Config {
     host: string;
     port: number;
   };
+  corsOrigin: string;
   jwtSecret: string;
 }
 
@@ -23,6 +24,7 @@ const configuration: Config = {
     host: String(process.env.DB_HOST),
     port: Number(process.env.DB_PORT),
   },
+  corsOrigin: String(process.env.CORS_ORIGIN),
   jwtSecret: String(process.env.JWT_SECRET),
 };
 
