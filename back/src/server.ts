@@ -30,6 +30,14 @@ const socketIo = new Server(server, {
 
 socketIo.on("connection", (socket) => {
   console.log("conectou no socket io");
+
+  socket.on("disconnect", () => {
+    console.log("desconetou");
+  });
+
+  socket.on("login", (message) => {
+    console.log("o que vem", message);
+  });
 });
 
 export default server;
