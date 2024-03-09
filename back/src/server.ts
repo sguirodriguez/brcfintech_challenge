@@ -6,6 +6,7 @@ import userRoutes from "./routes/user";
 import currencyRoutes from "./routes/currency";
 import walletRoutes from "./routes/wallet";
 import configuration from "./config";
+import { Server } from "socket.io";
 
 const app = express();
 
@@ -17,8 +18,18 @@ app.use("/user", userRoutes);
 app.use("/currency", currencyRoutes);
 app.use("/wallet", walletRoutes);
 
-app.listen(configuration.port || 3333, async () => {
+const server = app.listen(configuration.port || 3333, async () => {
   console.log("running on port 3333");
 });
 
-export default app;
+const socketIo = new Server(server, {
+  cors: {
+    origin: "*",
+  },
+});
+
+socketIo.on("connection", (socket) => {
+  console.log("conectou no socket io");
+});
+
+export default server;
