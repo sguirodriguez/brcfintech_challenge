@@ -3,7 +3,7 @@ import Users from "../../database/models/users";
 
 const userSchema = z.object({
   id: z.number(),
-  username: z.string().min(3, { message: "O nome precisa de  3 carateres." }),
+  username: z.string().min(3, { message: "O nome precisa de 3 carateres." }),
 });
 
 type User = z.infer<typeof userSchema>;

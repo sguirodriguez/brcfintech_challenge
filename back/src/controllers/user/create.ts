@@ -5,7 +5,7 @@ import Currencies from "../../database/models/currencies";
 import Wallets from "../../database/models/wallets";
 
 const userSchema = z.object({
-  username: z.string().min(3, { message: "O nome precisa de  3 carateres." }),
+  username: z.string().min(3, { message: "O nome precisa de 3 carateres." }),
 });
 
 type User = z.infer<typeof userSchema>;
