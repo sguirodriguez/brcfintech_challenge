@@ -24,3 +24,4 @@ yarn-error.log*
 yarn.lock
 .env
 yarn.lock*
+package-lock.json
