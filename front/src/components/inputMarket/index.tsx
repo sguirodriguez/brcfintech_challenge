@@ -3,6 +3,8 @@ import "./styles.scss";
 import { CSSProperties } from "react";
 import btcIcon from "../../assets/icons/btc-icon.svg";
 import usdIcon from "../../assets/icons/usd-icon.svg";
+import InputWithMask from "components/maskInput";
+
 const InputMarket = ({
   style,
   title = "titulo",
@@ -15,20 +17,20 @@ const InputMarket = ({
   style?: CSSProperties;
   title: string;
   type: string;
-  selectedCoin: string;
+  selectedCoin: "USD" | "BTC";
   handleChangeCoin: ({ type, value }: { type: string; value: string }) => void;
-  coinValue: number;
-  setCoinValue: (value: number) => void;
+  coinValue: string;
+  setCoinValue: (value: string) => void;
 }) => {
   return (
     <div className="container-input-market" style={style}>
       <TextComponent type="small">{title}</TextComponent>
 
       <div className="container-input-market-and-dropdown">
-        <input
-          type="text"
-          value={coinValue}
-          onChange={(event: any) => setCoinValue(event.target.value)}
+        <InputWithMask
+          mask={selectedCoin}
+          inputValue={coinValue}
+          setInputValue={setCoinValue}
           className="input-market"
         />
 

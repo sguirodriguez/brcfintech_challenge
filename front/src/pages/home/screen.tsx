@@ -6,6 +6,7 @@ import Balance from "components/balance";
 import btcIcon from "../../assets/icons/btc-icon.svg";
 import usdIcon from "../../assets/icons/usd-icon.svg";
 import { BalanceTypes } from "./controller";
+import { formatCurrency } from "utils/formatter";
 
 const ScreenHome = ({
   handlers,
@@ -39,7 +40,11 @@ const ScreenHome = ({
                   <Balance
                     key={item.id + index}
                     title={`Saldo ${item.currencies.symbol}`}
-                    value={item.balance}
+                    value={formatCurrency(
+                      Number(item.balance),
+                      String(item.currencies.symbol),
+                      true
+                    )}
                     coin={item.currencies.symbol}
                   />
                 );

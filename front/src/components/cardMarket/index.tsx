@@ -5,17 +5,17 @@ import InputMarket from "components/inputMarket";
 
 const CardMarket = () => {
   const [type, setType] = useState("buy");
-  const [coinSender, setCoinSender] = useState("BTC");
-  const [coinValueSender, setCoinValueSender] = useState(0);
-  const [coinReceiver, setCoinReceiver] = useState("USD");
-  const [coinValueReceiver, setCoinValueReceiver] = useState(0);
+  const [coinSender, setCoinSender] = useState<"BTC" | "USD">("BTC");
+  const [coinValueSender, setCoinValueSender] = useState("0");
+  const [coinReceiver, setCoinReceiver] = useState<"BTC" | "USD">("USD");
+  const [coinValueReceiver, setCoinValueReceiver] = useState("0");
 
   const handleChangeCoin = ({
     type,
     value,
   }: {
     type: string;
-    value: string;
+    value: "BTC" | "USD";
   }) => {
     if (type === "coinSender") {
       const coinReceiver = value === "BTC" ? "USD" : "BTC";
@@ -29,10 +29,10 @@ const CardMarket = () => {
     }
   };
 
-  const translatorFunction = {
-    buy: () => {},
-    sell: () => {},
-  };
+  // const translatorFunction = {
+  //   buy: () => {},
+  //   sell: () => {},
+  // };
 
   const translatorButton = {
     sell: "Vender",
