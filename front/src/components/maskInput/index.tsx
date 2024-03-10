@@ -26,7 +26,10 @@ const InputWithMask: React.FC<InputWithMaskProps> = ({
       const btcValue = (parseFloat(value) / 100000000).toFixed(8);
       formattedValue = `${btcValue}`;
     } else if (mask === "USD") {
-      const usdValue = (parseFloat(value) / 100).toFixed(2);
+      let usdValue = (parseFloat(value) / 100).toFixed(2);
+
+      usdValue = usdValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
       formattedValue = `${usdValue}`;
     }
     return formattedValue;
@@ -44,6 +47,7 @@ const InputWithMask: React.FC<InputWithMaskProps> = ({
       onChange={handleChange}
       style={{ border: "none", outline: "none", fontSize: "16px" }}
       className={className}
+      maxLength={15}
     />
   );
 };
