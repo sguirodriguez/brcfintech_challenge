@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "../services/partners/jwt";
+import { socketIo } from "../app";
 
 const middlewareAuth = (
   request: Request,

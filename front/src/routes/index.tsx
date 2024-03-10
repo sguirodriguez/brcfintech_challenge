@@ -7,10 +7,7 @@ const RouterRoot = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route
-          path={"/dashboard/:username/:token"}
-          element={<ControllerHome />}
-        />
+        <Route path={"/dashboard/:username"} element={<ControllerHome />} />
         <Route path={"/login"} element={<ControllerLogin />} />
       </Routes>
     </BrowserRouter>

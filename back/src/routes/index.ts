@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import express from "express";
 import createUser from "../controllers/user/create";
+import { socketIo } from "../app";
 
 const routes = express.Router();
 
@@ -19,6 +20,11 @@ routes.post("/login", async (request: Request, response: Response) => {
     };
 
     const result = await createUser.execute({ username });
+    socketIo.serverSideEmit("client", () => {
+      socketIo.emit("user_token", {
+        ...result.response,
+      });
+    });
 
     return response.status(result.status).json(result.response);
   } catch (error) {

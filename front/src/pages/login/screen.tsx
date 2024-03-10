@@ -8,7 +8,7 @@ const ScreenLogin = ({
     handleChangeValue: (value: string) => void;
     handleSignIn: (
       event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-    ) => Promise<void>;
+    ) => Promise<any>;
   };
 }) => {
   const { loading, handleChangeValue, handleSignIn } = handlers;

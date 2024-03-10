@@ -1,10 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import "./styles.scss";
 import Header from "../header";
 import { SlGrid } from "react-icons/sl";
 import TextComponent from "../text";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "context/auth";
 
 export const sidebarOptions = [
   {
@@ -15,13 +16,27 @@ export const sidebarOptions = [
 ];
 
 const Layout = ({ children }: { children?: ReactNode }) => {
+  const [loading, setLoading] = useState(true);
   const location = useLocation();
   const navigation = useNavigate();
-  const { username, token } = useParams();
-  const verifyUserIsLogged = () => {
-    if (location.pathname.includes("dashboard") && !username && !token) {
+  const { socketInstance, signIn, initializeSocket } = useAuth();
+  const { username } = useParams();
+
+  const verifyUserIsLogged = async () => {
+    if (location.pathname.includes("dashboard") && !username) {
+      setLoading(false);
       return navigation("/login");
     }
+
+    if (!socketInstance) {
+      const { data, error } = await signIn(username);
+      if (error) return navigation("/login");
+
+      initializeSocket(`Bearer ${data?.token}`);
+      setLoading(false);
+    }
+    setLoading(false);
+    return;
   };
 
   useEffect(() => {
@@ -45,7 +60,20 @@ const Layout = ({ children }: { children?: ReactNode }) => {
             </div>
           ))}
         </div>
-        <div className="content-layout-default">{children}</div>
+
+        <div className="content-layout-default">
+          {loading ? (
+            <div className="d-flex justify-content-center">
+              <div
+                className="spinner-border"
+                role="status"
+                style={{ width: 30, height: 30 }}
+              />
+            </div>
+          ) : (
+            children
+          )}
+        </div>
       </div>
     </div>
   );

@@ -1,8 +1,6 @@
-import { ReactNode, createContext, useContext } from "react";
-import useSocket from "hooks/socket";
+import { ReactNode, createContext, useContext, useState } from "react";
 import request from "utils/request/request";
-import { Socket } from "socket.io-client";
-
+import { socket } from "utils/socket/socket";
 interface User {
   username: string;
   token: string;
@@ -12,14 +10,19 @@ interface AuthContextType {
     data?: User;
     error?: boolean;
   }>;
-  signOut: ({ username, token }: { username: string; token: string }) => void;
-  socketInstance: Socket<any, any>;
+  signOut: () => void;
+  socketInstance: any;
+  initializeSocket: any;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const { socketInstance } = useSocket();
+  const [socketInstance, setSocketInstance] = useState(null);
+
+  const initializeSocket = (token: string) => {
+    setSocketInstance(socket(token));
+  };
 
   const signIn = async (username: string) => {
     const { data, error } = await request({
@@ -34,23 +37,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return { error: true };
     }
 
-    socketInstance.emit("login", {
-      username: data.username,
-      token: data.token,
-    });
-
     return { data: data as User };
   };
 
-  const signOut = ({ username, token }) => {
-    socketInstance.emit("logout", {
-      username,
-      token,
-    });
-  };
+  const signOut = () => {};
 
   return (
-    <AuthContext.Provider value={{ signIn, signOut, socketInstance }}>
+    <AuthContext.Provider
+      value={{ signIn, signOut, socketInstance, initializeSocket }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -4,10 +4,10 @@ import { useNavigate } from "react-router-dom";
 import ScreenLogin from "./screen";
 
 const ControllerLogin = () => {
+  const { signIn, initializeSocket } = useAuth();
   const [loading, setLoading] = useState<boolean>(false);
   const [value, setValue] = useState("");
   const navigation = useNavigate();
-  const { signIn } = useAuth();
 
   const handleChangeValue = (value: string) => {
     setValue(value);
@@ -26,7 +26,9 @@ const ControllerLogin = () => {
       return;
     }
 
-    return navigation(`/dashboard/${data?.username}/${data?.token}`);
+    const { username, token } = data;
+    initializeSocket(`Bearer ${token}`);
+    return navigation(`/dashboard/${username}`);
   };
 
   const handlers = {

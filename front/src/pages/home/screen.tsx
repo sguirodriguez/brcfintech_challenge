@@ -12,24 +12,36 @@ const ScreenHome = ({
 }: {
   handlers: {
     balances: BalanceTypes[] | null;
+    loadingBalances: boolean;
   };
 }) => {
-  const { balances } = handlers;
+  const { balances, loadingBalances } = handlers;
+
   return (
     <Layout>
       <div className="container-card-and-table-global">
         <div className="container-table-and-balances">
           <div className="balances">
-            {balances?.map((item, index) => {
-              return (
-                <Balance
-                  key={item.id + index}
-                  title={`Saldo ${item.currencies.symbol}`}
-                  value={item.balance}
-                  coin={item.currencies.symbol}
+            {loadingBalances ? (
+              <div className="d-flex w-100 justify-content-center align-items-center p-10">
+                <div
+                  className="spinner-border"
+                  role="status"
+                  style={{ width: 22, height: 22 }}
                 />
-              );
-            })}
+              </div>
+            ) : (
+              balances?.map((item, index) => {
+                return (
+                  <Balance
+                    key={item.id + index}
+                    title={`Saldo ${item.currencies.symbol}`}
+                    value={item.balance}
+                    coin={item.currencies.symbol}
+                  />
+                );
+              })
+            )}
           </div>
           <div className="balances">
             <Balance

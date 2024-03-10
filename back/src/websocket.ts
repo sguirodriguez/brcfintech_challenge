@@ -1,42 +1,19 @@
 import { socketIo } from "./app";
-
-interface User {
-  username: string;
-  token: string;
-  socketId: string;
-}
-
-const users: User[] = [];
+import socketAuthMiddleware from "./middleware/socketAuth";
 
 socketIo.on("connection", (socket) => {
+  console.log("conectado");
+
   socket.on("disconnect", () => {
     console.log("desconetou");
   });
+});
 
-  socket.on("logout", () => {
-    const userDisconnect = users.findIndex(
-      (item) => item.socketId === socket.id
-    );
-    if (userDisconnect !== -1) {
-      users.slice(userDisconnect);
+socketIo.use((socket, next) => {
+  socketAuthMiddleware(socket, (error) => {
+    if (error) {
+      return next(error);
     }
-  });
-
-  socket.on("login", (data) => {
-    const { username, token } = data;
-
-    const userIsLogged = users?.find(
-      (user) => user.username === username && user.token === token
-    );
-
-    if (userIsLogged) {
-      return (userIsLogged.socketId = socket.id);
-    }
-
-    return users.push({
-      username,
-      token,
-      socketId: socket.id,
-    });
+    next();
   });
 });
