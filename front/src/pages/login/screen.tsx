@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import cryptoImage from "../../assets/images/crypto.png";
 
 const ScreenLogin = ({
@@ -6,12 +7,11 @@ const ScreenLogin = ({
   handlers: {
     loading: boolean;
     handleChangeValue: (value: string) => void;
-    handleSignIn: (
-      event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-    ) => Promise<any>;
+    handleSignIn: () => Promise<any>;
+    value: string;
   };
 }) => {
-  const { loading, handleChangeValue, handleSignIn } = handlers;
+  const { loading, handleChangeValue, handleSignIn, value } = handlers;
 
   return (
     <div className="min-vw-100 min-vh-100 d-flex justify-content-center align-items-center">
@@ -31,6 +31,7 @@ const ScreenLogin = ({
 
           <div className="form-floating mb-3">
             <input
+              value={value}
               type="username"
               className="form-control"
               id="floatingInput"
@@ -51,7 +52,15 @@ const ScreenLogin = ({
             <button
               className="btn btn-primary w-100 py-2 my-3"
               type="submit"
-              onClick={(event) => handleSignIn(event)}
+              onClick={(event) => {
+                event.preventDefault();
+
+                if (!value) {
+                  return toast.error("É necessário um username!");
+                }
+
+                handleSignIn();
+              }}
             >
               Entrar
             </button>

@@ -23,7 +23,10 @@ const ScreenHome = ({
         <div className="container-table-and-balances">
           <div className="balances">
             {loadingBalances ? (
-              <div className="d-flex w-100 justify-content-center align-items-center p-10">
+              <div
+                className="d-flex w-100 justify-content-center align-items-center"
+                style={{ padding: "40px 0px" }}
+              >
                 <div
                   className="spinner-border"
                   role="status"

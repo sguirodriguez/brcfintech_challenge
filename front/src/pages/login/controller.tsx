@@ -2,6 +2,7 @@ import { useAuth } from "context/auth";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ScreenLogin from "./screen";
+import { toast } from "react-toastify";
 
 const ControllerLogin = () => {
   const { signIn, initializeSocket } = useAuth();
@@ -13,17 +14,13 @@ const ControllerLogin = () => {
     setValue(value);
   };
 
-  const handleSignIn = async (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    event.preventDefault();
-
+  const handleSignIn = async () => {
     setLoading(true);
     const { data, error } = await signIn(value);
     setLoading(false);
 
     if (error) {
-      return;
+      return toast.error(error);
     }
 
     const { username, token } = data;
@@ -35,6 +32,7 @@ const ControllerLogin = () => {
     loading,
     handleChangeValue,
     handleSignIn,
+    value,
   };
 
   return <ScreenLogin handlers={handlers} />;

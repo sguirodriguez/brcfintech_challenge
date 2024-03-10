@@ -5,6 +5,39 @@ import InputMarket from "components/inputMarket";
 
 const CardMarket = () => {
   const [type, setType] = useState("buy");
+  const [coinSender, setCoinSender] = useState("BTC");
+  const [coinValueSender, setCoinValueSender] = useState(0);
+  const [coinReceiver, setCoinReceiver] = useState("USD");
+  const [coinValueReceiver, setCoinValueReceiver] = useState(0);
+
+  const handleChangeCoin = ({
+    type,
+    value,
+  }: {
+    type: string;
+    value: string;
+  }) => {
+    if (type === "coinSender") {
+      const coinReceiver = value === "BTC" ? "USD" : "BTC";
+      setCoinSender(value);
+      setCoinReceiver(coinReceiver);
+    }
+    if (type === "coinReceiver") {
+      const coinsSender = value === "BTC" ? "USD" : "BTC";
+      setCoinReceiver(value);
+      setCoinSender(coinsSender);
+    }
+  };
+
+  const translatorFunction = {
+    buy: () => {},
+    sell: () => {},
+  };
+
+  const translatorButton = {
+    sell: "Vender",
+    buy: "Comprar",
+  };
 
   return (
     <div className="container-card-market">
@@ -26,20 +59,29 @@ const CardMarket = () => {
 
       <div className="content-card-market">
         <div>
-          <InputMarket title={type !== "sell" ? "Gastar" : "Vender"} />
+          <InputMarket
+            title={translatorButton[type]}
+            type="coinSender"
+            selectedCoin={coinSender}
+            handleChangeCoin={handleChangeCoin}
+            coinValue={coinValueSender}
+            setCoinValue={setCoinValueSender}
+          />
 
-          <InputMarket title="Receber" style={{ marginTop: 10 }} />
+          <InputMarket
+            title="Receber"
+            type="coinReceiver"
+            selectedCoin={coinReceiver}
+            handleChangeCoin={handleChangeCoin}
+            coinValue={coinValueReceiver}
+            setCoinValue={setCoinValueReceiver}
+            style={{ marginTop: 10 }}
+          />
         </div>
 
-        {type !== "sell" ? (
-          <button type="button" className="btn btn-dark">
-            Comprar
-          </button>
-        ) : (
-          <button type="button" className="btn btn-dark">
-            Vender
-          </button>
-        )}
+        <button type="button" className="btn btn-dark">
+          {translatorButton[type]}
+        </button>
       </div>
     </div>
   );

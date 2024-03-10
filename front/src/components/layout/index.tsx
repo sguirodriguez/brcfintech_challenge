@@ -63,7 +63,7 @@ const Layout = ({ children }: { children?: ReactNode }) => {
 
         <div className="content-layout-default">
           {loading ? (
-            <div className="d-flex justify-content-center">
+            <div className="d-flex justify-content-center align-items-center w-100 h-50">
               <div
                 className="spinner-border"
                 role="status"

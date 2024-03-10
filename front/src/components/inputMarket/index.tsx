@@ -6,16 +6,31 @@ import usdIcon from "../../assets/icons/usd-icon.svg";
 const InputMarket = ({
   style,
   title = "titulo",
+  type,
+  selectedCoin,
+  handleChangeCoin,
+  coinValue,
+  setCoinValue,
 }: {
   style?: CSSProperties;
   title: string;
+  type: string;
+  selectedCoin: string;
+  handleChangeCoin: ({ type, value }: { type: string; value: string }) => void;
+  coinValue: number;
+  setCoinValue: (value: number) => void;
 }) => {
   return (
     <div className="container-input-market" style={style}>
       <TextComponent type="small">{title}</TextComponent>
 
       <div className="container-input-market-and-dropdown">
-        <input type="text" className="input-market" />
+        <input
+          type="text"
+          value={coinValue}
+          onChange={(event: any) => setCoinValue(event.target.value)}
+          className="input-market"
+        />
 
         <div className="dropdown">
           <button
@@ -24,18 +39,28 @@ const InputMarket = ({
             data-bs-toggle="dropdown"
             aria-expanded="false"
           >
-            <img src={btcIcon} width={25} height={25} alt="" />
+            {selectedCoin === "BTC" ? (
+              <img src={btcIcon} width={25} height={25} alt="" />
+            ) : (
+              <img src={usdIcon} width={25} height={25} alt="" />
+            )}
           </button>
           <ul className="dropdown-menu">
             <li>
-              <div className="dropdown-row-market">
+              <div
+                className="dropdown-row-market"
+                onClick={() => handleChangeCoin({ type, value: "BTC" })}
+              >
                 <img src={btcIcon} width={25} height={25} alt="" />
                 <TextComponent>BTC</TextComponent>
               </div>
             </li>
 
             <li>
-              <div className="dropdown-row-market">
+              <div
+                className="dropdown-row-market"
+                onClick={() => handleChangeCoin({ type, value: "USD" })}
+              >
                 <img src={usdIcon} width={25} height={25} alt="" />
                 <TextComponent>USD</TextComponent>
               </div>
