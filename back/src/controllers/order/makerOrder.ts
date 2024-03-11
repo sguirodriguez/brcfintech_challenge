@@ -291,7 +291,7 @@ class MakeOrder {
 
     const getValueDiscountInUSD = (value: number) => {
       return parseFloat(
-        Number(Number(order.amount) * data?.usdToBitcoinRate).toFixed(2)
+        Number(Number(value) * data?.usdToBitcoinRate).toFixed(2)
       );
     };
 
@@ -333,13 +333,6 @@ class MakeOrder {
       discountOrSum: getValueDiscountInUSD(order?.amount),
       emitter: false,
       fixed: 2,
-    });
-
-    console.log("values", {
-      valueBTCWhoEmit,
-      valueUSDWhoEmit,
-      valueBTCWhoListening,
-      valueUSDWhoListening,
     });
 
     const makeTransactionOderAndDiscount = await sequelize.transaction(
@@ -492,10 +485,10 @@ class MakeOrder {
     }
 
     if (instance === "FIRST" && type === "sell") {
-      return parseFloat(Number(value - Number(discountOrSum)).toFixed(fixed));
+      return parseFloat(Number(value + Number(discountOrSum)).toFixed(fixed));
     }
     if (instance === "FIRST" && type === "buy") {
-      return parseFloat(Number(value + Number(discountOrSum)).toFixed(fixed));
+      return parseFloat(Number(value - Number(discountOrSum)).toFixed(fixed));
     }
     if (instance === "SECOND" && type === "buy") {
       return parseFloat(Number(value - Number(discountOrSum)).toFixed(fixed));

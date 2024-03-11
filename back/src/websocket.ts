@@ -89,7 +89,7 @@ socketIo.on("connection", (socket) => {
 
         socket.emit("make_order_response", {
           data: response?.data,
-          error: response?.error,
+          error: response.error,
         });
 
         socketIo.emit("repeat_get_all_orders");
