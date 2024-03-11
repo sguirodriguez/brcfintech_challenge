@@ -1,6 +1,7 @@
 import { socketIo } from "./app";
 import calculateExchange from "./controllers/order/calculateExchange";
 import findAllOrders from "./controllers/order/findAllOrders";
+import findOrders from "./controllers/order/find";
 import makerOrder from "./controllers/order/makerOrder";
 import socketAuthMiddleware from "./middleware/socketAuth";
 import userInfo from "./services/partners/userInfo";
@@ -76,6 +77,29 @@ socketIo.on("connection", (socket) => {
     const { response } = await findAllOrders.execute(user.id);
 
     socket.emit("get_all_orders_response", {
+      data: response.data,
+      error: response.error,
+    });
+  });
+
+  socket.on("get_my_orders", async () => {
+    const authToken = socket.handshake.headers["authorization"];
+
+    if (!authToken) {
+      return socket.emit("get_my_orders_response", {
+        error: "Não foi possível encontrar o usuário.",
+      });
+    }
+
+    const user = await userInfo?.getUserInfoSocket(
+      authToken,
+      socket,
+      "get_my_orders_response"
+    );
+
+    const { response } = await findOrders.execute(user.id);
+
+    socket.emit("get_my_orders_response", {
       data: response.data,
       error: response.error,
     });

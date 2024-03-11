@@ -8,6 +8,7 @@ import usdIcon from "../../assets/icons/usd-icon.svg";
 import { formatCurrency } from "utils/formatter";
 import { BalanceTypes, ExchangeRates, Order } from "./types";
 import { applyMaskCoin } from "utils/mask";
+import LoadingComponent from "components/loading";
 
 const ScreenHome = ({
   handlers,
@@ -18,10 +19,19 @@ const ScreenHome = ({
     exchangeRates: ExchangeRates | null;
     loadingRates: boolean;
     orders: Order[] | null;
+    loadingOrders: boolean;
+    myOrders: Order[] | null;
   };
 }) => {
-  const { balances, loadingBalances, exchangeRates, loadingRates, orders } =
-    handlers;
+  const {
+    balances,
+    loadingBalances,
+    exchangeRates,
+    loadingRates,
+    orders,
+    loadingOrders,
+    myOrders,
+  } = handlers;
   const translatorType = {
     buy: "Compra",
     sell: "Á venda",
@@ -31,22 +41,14 @@ const ScreenHome = ({
     const valueInUSD = Number(value) * exchangeRates?.usdToBitcoinRate;
     return applyMaskCoin(String(valueInUSD?.toFixed(2)), "USD");
   };
+
   return (
     <Layout>
       <div className="container-card-and-table-global">
         <div className="container-table-and-balances">
           <div className="balances">
             {loadingBalances ? (
-              <div
-                className="d-flex w-100 justify-content-center align-items-center"
-                style={{ padding: "40px 0px" }}
-              >
-                <div
-                  className="spinner-border"
-                  role="status"
-                  style={{ width: 22, height: 22 }}
-                />
-              </div>
+              <LoadingComponent />
             ) : (
               balances?.map((item, index) => {
                 return (
@@ -84,16 +86,20 @@ const ScreenHome = ({
                 </tr>
               </thead>
               <tbody>
-                {orders?.map((item, index) => {
-                  return (
-                    <tr key={item.id + index}>
-                      <td>{item?.amount}</td>
-                      <td>{defineBitcoinValueInUsd(String(item?.amount))}</td>
-                      <td>{translatorType[item?.type]}</td>
-                      <td>x</td>
-                    </tr>
-                  );
-                })}
+                {loadingOrders ? (
+                  <LoadingComponent />
+                ) : (
+                  orders?.map((item, index) => {
+                    return (
+                      <tr key={item.id + index}>
+                        <td>{item?.amount}</td>
+                        <td>{defineBitcoinValueInUsd(String(item?.amount))}</td>
+                        <td>{translatorType[item?.type]}</td>
+                        <td>x</td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
@@ -141,28 +147,22 @@ const ScreenHome = ({
               <th scope="col">Valor BTC</th>
               <th scope="col">Valor USD</th>
               <th scope="col">Tipo</th>
-              <th scope="col"></th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>49.223</td>
-              <td>0.004</td>
-              <td>Compra</td>
-              <td>x</td>
-            </tr>
-            <tr>
-              <td>49.223</td>
-              <td>0.004</td>
-              <td>Compra</td>
-              <td>x</td>
-            </tr>
-            <tr>
-              <td>49.223</td>
-              <td>0.004</td>
-              <td>Compra</td>
-              <td>x</td>
-            </tr>
+            {loadingOrders ? (
+              <LoadingComponent />
+            ) : (
+              myOrders?.map((item, index) => {
+                return (
+                  <tr key={item.id + index}>
+                    <td>{item?.amount}</td>
+                    <td>{defineBitcoinValueInUsd(String(item?.amount))}</td>
+                    <td>{translatorType[item?.type]}</td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>

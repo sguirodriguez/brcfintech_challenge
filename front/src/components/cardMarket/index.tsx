@@ -6,6 +6,7 @@ import { ExchangeRates } from "pages/home/types";
 import { applyMaskCoin, maskOnlyNumberUSD } from "utils/mask";
 import { useAuth } from "context/auth";
 import { toast } from "react-toastify";
+import LoadingComponent from "components/loading";
 
 const CardMarket = ({
   exchangeRates,
@@ -150,16 +151,7 @@ const CardMarket = ({
 
       <div className="content-card-market">
         {loadingRates ? (
-          <div
-            className="d-flex w-100 justify-content-center align-items-center"
-            style={{ padding: "40px 0px" }}
-          >
-            <div
-              className="spinner-border"
-              role="status"
-              style={{ width: 22, height: 22 }}
-            />
-          </div>
+          <LoadingComponent />
         ) : (
           <div>
             <InputMarket
