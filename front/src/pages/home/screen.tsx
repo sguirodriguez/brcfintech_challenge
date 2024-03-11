@@ -104,7 +104,30 @@ const ScreenHome = ({
                         <td>{item?.amount}</td>
                         <td>{defineBitcoinValueInUsd(String(item?.amount))}</td>
                         <td>{translatorType[item?.type]}</td>
-                        <td>x</td>
+                        <td>
+                          {item?.type === "buy" ? (
+                            <button
+                              type="button"
+                              className="btn btn-primary"
+                              onClick={(event) => {
+                                event.preventDefault();
+                              }}
+                            >
+                              Comprar
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              className="btn btn-danger"
+                              onClick={(event) => {
+                                event.preventDefault();
+                                handleDeleteOrder(item.id);
+                              }}
+                            >
+                              Vender
+                            </button>
+                          )}
+                        </td>
                       </tr>
                     );
                   })

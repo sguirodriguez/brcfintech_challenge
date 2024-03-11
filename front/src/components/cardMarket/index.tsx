@@ -25,6 +25,7 @@ const CardMarket = ({
     coin: "BTC" | "USD";
   } | null>(null);
   const [loadingFee, setLoadingFee] = useState(false);
+  const [loadingMakeOrder, setLoadingMakeOrder] = useState(false);
 
   const translatorButton = {
     sell: "Vender",
@@ -72,16 +73,16 @@ const CardMarket = ({
     }, 2000);
   };
 
-  const getValueFeeInUsd = () => {
-    const valueInUSD = Number(fee?.value) * exchangeRates?.usdToBitcoinRate;
-    return applyMaskCoin(String(valueInUSD?.toFixed(2)), "USD");
-  };
+  // const _getValueFeeInUsd = () => {
+  //   const valueInUSD = Number(fee?.value) * exchangeRates?.usdToBitcoinRate;
+  //   return applyMaskCoin(String(valueInUSD?.toFixed(2)), "USD");
+  // };
 
   const handleMakeOrder = () => {
     if (!socketInstance) {
       return toast.error("Por favor, faça o login novamente.");
     }
-
+    setLoadingMakeOrder(true);
     socketInstance.emit("make_order", {
       amount: Number(Number(bitcoinValue)?.toFixed(8)),
       coin: "BTC",
@@ -104,6 +105,7 @@ const CardMarket = ({
       });
 
       socketInstance.on("make_order_response", ({ data, error }) => {
+        setLoadingMakeOrder(false);
         if (error) {
           return toast.error(error);
         }
@@ -118,6 +120,7 @@ const CardMarket = ({
   const showFee = fee?.value && maskOnlyNumberUSD(usdValue) > 1;
 
   const disableButton =
+    loadingMakeOrder ||
     loadingFee ||
     (maskOnlyNumberUSD(usdValue) > 0 && maskOnlyNumberUSD(usdValue) < 1) ||
     !fee?.value ||
@@ -206,7 +209,11 @@ const CardMarket = ({
           className={`btn btn-dark ${disableButton && "button-not-touchable"}`}
           onClick={disableButton ? () => {} : () => handleMakeOrder()}
         >
-          {translatorButton[type]}
+          {loadingMakeOrder ? (
+            <LoadingComponent style={{ padding: "4px" }} />
+          ) : (
+            translatorButton[type]
+          )}
         </button>
       </div>
     </div>
