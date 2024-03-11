@@ -8,6 +8,7 @@ import findAllOrders from "../controllers/order/findAllOrders";
 import findOrders from "../controllers/order/find";
 import deleteOrder from "../controllers/order/delete";
 import userInfo from "../services/partners/userInfo";
+import completeOrder from "../controllers/order/completeOrder";
 
 const router = Router();
 
@@ -133,6 +134,40 @@ router.delete(
       };
 
       const result = await deleteOrder.execute(orderId);
+
+      return response.status(result.status).send(result.response);
+    } catch (error) {
+      return response.status(500).json({
+        error,
+      });
+    }
+  }
+);
+
+router.post(
+  "",
+  middlewareAuth,
+  async (request: Request, response: Response) => {
+    try {
+      const { orderId, amount, coin, type } = request.body as {
+        orderId: number;
+        amount: number;
+        coin: "BTC" | "USD";
+        type: "buy" | "sell";
+      };
+
+      const user = await userInfo.getUserInfoByToken(
+        String(request.headers.authorization),
+        response
+      );
+
+      const result = await completeOrder.execute({
+        userId: user.id,
+        orderId,
+        amount,
+        coin,
+        type,
+      });
 
       return response.status(result.status).send(result.response);
     } catch (error) {
