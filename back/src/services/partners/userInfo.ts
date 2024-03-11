@@ -38,27 +38,31 @@ const getUserInfoSocket = async (
   socket: Socket,
   emitString: string
 ): Promise<any> => {
-  const token = auth?.split(" ");
+  try {
+    const token = auth?.split(" ");
 
-  if (!token || !token?.[1]) {
-    return socket.emit(emitString, {
-      error: "Não foi possível encontrar o usuário, faça login novamente.",
+    if (!token || !token?.[1]) {
+      return socket.emit(emitString, {
+        error: "Não foi possível encontrar o usuário, faça login novamente.",
+      });
+    }
+
+    const user = await Users.findOne({
+      where: {
+        token: token?.[1],
+      },
     });
+
+    if (!user) {
+      return socket.emit(emitString, {
+        error: "Não foi possível encontrar o usuário, faça login novamente.",
+      });
+    }
+
+    return user;
+  } catch (error) {
+    return null;
   }
-
-  const user = await Users.findOne({
-    where: {
-      token: token?.[1],
-    },
-  });
-
-  if (!user) {
-    return socket.emit(emitString, {
-      error: "Não foi possível encontrar o usuário, faça login novamente.",
-    });
-  }
-
-  return user;
 };
 
 export default { getUserInfoByToken, getUserInfoSocket };

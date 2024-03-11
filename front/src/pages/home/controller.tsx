@@ -58,12 +58,18 @@ const ControllerHome = () => {
     return;
   };
 
+  const handleDeleteOrder = (orderId: number) => {
+    if (!orderId) {
+      return toast.error("é necessário selecionar uma ordem.");
+    }
+    socketInstance.emit("delete_my_order", { orderId });
+  };
+
   useEffect(() => {
     if (socketInstance) {
       socketInstance.on("user_token", (data) => {
         setToken(data);
       });
-
       socketInstance.emit("get_all_orders");
       socketInstance.emit("get_my_orders");
 
@@ -91,6 +97,14 @@ const ControllerHome = () => {
 
         setMyOrders(data);
       });
+
+      socketInstance.on("delete_my_order_response", ({ data, error }) => {
+        if (error) {
+          return toast.error(error);
+        }
+
+        return toast.success("Ordem cancelada.");
+      });
     }
 
     if (!socketInstance) return;
@@ -111,6 +125,7 @@ const ControllerHome = () => {
     orders: Order[] | null;
     loadingOrders: boolean;
     myOrders: Order[] | null;
+    handleDeleteOrder: (orderId: number) => void;
   } = {
     balances,
     loadingBalances,
@@ -119,6 +134,7 @@ const ControllerHome = () => {
     orders,
     loadingOrders,
     myOrders,
+    handleDeleteOrder,
   };
   return <ScreenHome handlers={handlers} />;
 };

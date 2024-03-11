@@ -6,6 +6,7 @@ import exchangeRate from "../controllers/order/exchangeRate";
 import makerOrder from "../controllers/order/makerOrder";
 import findAllOrders from "../controllers/order/findAllOrders";
 import findOrders from "../controllers/order/find";
+import deleteOrder from "../controllers/order/delete";
 import userInfo from "../services/partners/userInfo";
 
 const router = Router();
@@ -105,17 +106,33 @@ router.get(
   }
 );
 
-router.get(
-  "/",
+router.get("", middlewareAuth, async (request: Request, response: Response) => {
+  try {
+    const user = await userInfo.getUserInfoByToken(
+      String(request.headers.authorization),
+      response
+    );
+
+    const result = await findOrders.execute(user.id);
+
+    return response.status(result.status).send(result.response);
+  } catch (error) {
+    return response.status(500).json({
+      error,
+    });
+  }
+});
+
+router.delete(
+  "",
   middlewareAuth,
   async (request: Request, response: Response) => {
     try {
-      const user = await userInfo.getUserInfoByToken(
-        String(request.headers.authorization),
-        response
-      );
+      const { orderId } = request.body as {
+        orderId: number;
+      };
 
-      const result = await findOrders.execute(user.id);
+      const result = await deleteOrder.execute(orderId);
 
       return response.status(result.status).send(result.response);
     } catch (error) {

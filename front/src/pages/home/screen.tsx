@@ -21,6 +21,7 @@ const ScreenHome = ({
     orders: Order[] | null;
     loadingOrders: boolean;
     myOrders: Order[] | null;
+    handleDeleteOrder: (orderId: number) => void;
   };
 }) => {
   const {
@@ -31,6 +32,7 @@ const ScreenHome = ({
     orders,
     loadingOrders,
     myOrders,
+    handleDeleteOrder,
   } = handlers;
   const translatorType = {
     buy: "Compra",
@@ -91,6 +93,9 @@ const ScreenHome = ({
                         Sem ordens para mostrar...
                       </TextComponent>
                     </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                   </tr>
                 ) : (
                   orders?.map((item, index) => {
@@ -110,6 +115,60 @@ const ScreenHome = ({
         </div>
 
         <CardMarket exchangeRates={exchangeRates} loadingRates={loadingRates} />
+      </div>
+
+      <div className="container-table-style-default">
+        <TextComponent style={{ marginBottom: 20 }}>
+          Minhas ordens
+        </TextComponent>
+        <table className="table">
+          <thead>
+            <tr>
+              <th scope="col">Valor BTC</th>
+              <th scope="col">Valor USD</th>
+              <th scope="col">Tipo</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {loadingOrders ? (
+              <LoadingComponent />
+            ) : !myOrders || myOrders?.length === 0 ? (
+              <tr>
+                <td>
+                  <TextComponent style={{ color: "black", marginTop: 10 }}>
+                    Sem ordens para mostrar...
+                  </TextComponent>
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+            ) : (
+              myOrders?.map((item, index) => {
+                return (
+                  <tr key={item?.id + index}>
+                    <td>{item?.amount}</td>
+                    <td>{defineBitcoinValueInUsd(String(item?.amount))}</td>
+                    <td>{translatorType[item?.type]}</td>
+                    <td>
+                      <button
+                        type="button"
+                        className="btn btn-danger"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          handleDeleteOrder(item.id);
+                        }}
+                      >
+                        X
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
       </div>
 
       <div className="container-table-style-default">
@@ -143,44 +202,6 @@ const ScreenHome = ({
               <td>0.004</td>
               <td>0.004</td>
             </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div className="container-table-style-default">
-        <TextComponent style={{ marginBottom: 20 }}>
-          Minhas ordens
-        </TextComponent>
-        <table className="table">
-          <thead>
-            <tr>
-              <th scope="col">Valor BTC</th>
-              <th scope="col">Valor USD</th>
-              <th scope="col">Tipo</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loadingOrders ? (
-              <LoadingComponent />
-            ) : !myOrders || myOrders?.length === 0 ? (
-              <tr>
-                <td>
-                  <TextComponent style={{ color: "black", marginTop: 50 }}>
-                    Sem ordens para mostrar...
-                  </TextComponent>
-                </td>
-              </tr>
-            ) : (
-              myOrders?.map((item, index) => {
-                return (
-                  <tr key={item.id + index}>
-                    <td>{item?.amount}</td>
-                    <td>{defineBitcoinValueInUsd(String(item?.amount))}</td>
-                    <td>{translatorType[item?.type]}</td>
-                  </tr>
-                );
-              })
-            )}
           </tbody>
         </table>
       </div>
