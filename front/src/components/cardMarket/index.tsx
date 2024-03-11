@@ -23,6 +23,7 @@ const CardMarket = ({
     fee: number;
     coin: "BTC" | "USD";
   } | null>(null);
+  const [loadingFee, setLoadingFee] = useState(false);
 
   // const translatorFunction = {
   //   buy: () => {},
@@ -64,12 +65,15 @@ const CardMarket = ({
     if (maskOnlyNumberUSD(usdValue) < 1) {
       return;
     }
-
+    setLoadingFee(true);
     socketInstance.emit("find_fee_exchange", {
       value: Number(Number(bitcoinValue)?.toFixed(8)),
       coin: "BTC",
       type: type,
     });
+    setTimeout(() => {
+      setLoadingFee(false);
+    }, 2000);
   };
 
   const getValueFeeInUsd = () => {
@@ -79,6 +83,7 @@ const CardMarket = ({
 
   useEffect(() => {
     findFee();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [usdValue]);
 
   useEffect(() => {
@@ -96,6 +101,12 @@ const CardMarket = ({
     maskOnlyNumberUSD(usdValue) > 0 && maskOnlyNumberUSD(usdValue) < 1;
 
   const showFee = fee?.value && maskOnlyNumberUSD(usdValue) > 1;
+
+  const disableButton =
+    loadingFee ||
+    (maskOnlyNumberUSD(usdValue) > 0 && maskOnlyNumberUSD(usdValue) < 1) ||
+    !fee?.value ||
+    maskOnlyNumberUSD(usdValue) === 0;
 
   return (
     <div className="container-card-market">
@@ -160,18 +171,34 @@ const CardMarket = ({
               </TextComponent>
             )}
 
-            {showFee && (
-              <TextComponent style={{ marginTop: 10 }}>
-                {`* Uma taxa de ${fee?.fee}% será cobrada`}
-                <br />
-                <br />
-                taxa: {getValueFeeInUsd()} USD
-              </TextComponent>
+            {loadingFee ? (
+              <div
+                className="d-flex w-100 justify-content-center align-items-center"
+                style={{ padding: "40px 0px" }}
+              >
+                <div
+                  className="spinner-border"
+                  role="status"
+                  style={{ width: 22, height: 22 }}
+                />
+              </div>
+            ) : (
+              showFee && (
+                <TextComponent style={{ marginTop: 10 }}>
+                  {`* Uma taxa de ${fee?.fee}% será cobrada`}
+                  <br />
+                  <br />
+                  taxa: {getValueFeeInUsd()} USD
+                </TextComponent>
+              )
             )}
           </div>
         )}
 
-        <button type="button" className="btn btn-dark">
+        <button
+          type="button"
+          className={`btn btn-dark ${disableButton && "button-not-touchable"}`}
+        >
           {translatorButton[type]}
         </button>
       </div>
