@@ -79,6 +79,7 @@ class MakeOrder {
       return {
         status: 500,
         response: {
+          data: null,
           error: "Não foi possível cobrar as taxas.",
         },
       };
@@ -136,6 +137,7 @@ class MakeOrder {
       return {
         status: 500,
         response: {
+          data: null,
           error: "Não foi possível criar a ordem.",
         },
       };
@@ -232,6 +234,16 @@ class MakeOrder {
         return order;
       }
     );
+
+    if (!makeTransactionOderAndDiscount) {
+      return {
+        status: 500,
+        response: {
+          data: null,
+          error: "Não foi possível criar a ordem.",
+        },
+      };
+    }
 
     return {
       status: 200,

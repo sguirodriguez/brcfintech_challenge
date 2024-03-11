@@ -4,7 +4,7 @@ import Wallets from "../../database/models/wallets";
 import Currencies from "../../database/models/currencies";
 
 const walletSchema = z.object({
-  token: z.string(),
+  userId: z.number(),
 });
 
 type Wallet = z.infer<typeof walletSchema>;
@@ -20,13 +20,7 @@ class FindUserBalances {
       };
     }
 
-    const token = user.token.split(" ");
-
-    const hasUser = await Users.findOne({
-      where: {
-        token: token[1],
-      },
-    });
+    const hasUser = await Users.findByPk(user.userId);
 
     if (!hasUser) {
       return {

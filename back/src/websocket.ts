@@ -6,6 +6,7 @@ import makerOrder from "./controllers/order/makerOrder";
 import deleteOrder from "./controllers/order/delete";
 import socketAuthMiddleware from "./middleware/socketAuth";
 import userInfo from "./services/partners/userInfo";
+import findUserBalances from "./controllers/wallets/findUserBalances";
 
 socketIo.use((socket, next) => {
   socketAuthMiddleware(socket, (error) => {
@@ -21,6 +22,33 @@ socketIo.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("desconetou");
+  });
+
+  socket.on("get_user_balances", async () => {
+    try {
+      const authToken = socket.handshake.headers["authorization"];
+
+      if (!authToken) {
+        return socket.emit("get_user_balances_response", {
+          error: "Não foi possível encontrar o usuário.",
+        });
+      }
+
+      const user = await userInfo?.getUserInfoSocket(
+        authToken,
+        socket,
+        "get_user_balances_response"
+      );
+
+      const { response } = await findUserBalances.execute({ userId: user.id });
+
+      socket.emit("get_user_balances_response", {
+        data: response.data,
+        error: response.error,
+      });
+    } catch (error) {
+      console.log("SOCKET ERROR:", error);
+    }
   });
 
   socket.on("find_fee_exchange", async (data) => {
@@ -59,8 +87,8 @@ socketIo.on("connection", (socket) => {
         });
 
         socket.emit("make_order_response", {
-          data: response.data,
-          error: response.error,
+          data: response?.data,
+          error: response?.error,
         });
 
         socketIo.emit("repeat_get_all_orders");
@@ -131,7 +159,6 @@ socketIo.on("connection", (socket) => {
           error: "É necessário uma ordem para deletar.",
         });
       }
-      console.log("bateu aqui");
 
       const { response } = await deleteOrder.execute(orderId);
 

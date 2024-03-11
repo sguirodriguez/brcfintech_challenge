@@ -12,31 +12,11 @@ const ControllerHome = () => {
   const [exchangeRates, setExchangeRates] = useState<ExchangeRates | null>(
     null
   );
-  const [loadingBalances, setLoadingBalances] = useState(false);
+  const [loadingBalances, setLoadingBalances] = useState(true);
   const [loadingRates, setLoadingRates] = useState(false);
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [myOrders, setMyOrders] = useState<Order[] | null>(null);
   const [loadingOrders, setLoadingOrders] = useState(true);
-
-  const getUserBalances = async (token: string) => {
-    setLoadingBalances(true);
-    const { data, error } = await request({
-      method: "GET",
-      path: "wallet/balances",
-      headers: {
-        Authorization: token,
-      },
-    });
-    setLoadingBalances(false);
-
-    if (error) {
-      setBalances(null);
-      return toast.error(error);
-    }
-
-    setBalances(data);
-    return;
-  };
 
   const getExchangeRates = async (token: string) => {
     setLoadingRates(true);
@@ -70,13 +50,24 @@ const ControllerHome = () => {
       socketInstance.on("user_token", (data) => {
         setToken(data);
       });
+      socketInstance.emit("get_user_balances");
       socketInstance.emit("get_all_orders");
       socketInstance.emit("my_orders");
 
       socketInstance.on("repeat_get_all_orders", () => {
         socketInstance.emit("get_all_orders");
-
+        socketInstance.emit("get_user_balances");
         socketInstance.emit("my_orders");
+      });
+
+      socketInstance.on("get_user_balances_response", ({ data, error }) => {
+        setLoadingBalances(false);
+        if (error) {
+          setBalances(null);
+          return toast.error(error);
+        }
+
+        setBalances(data);
       });
 
       socketInstance.on("get_all_orders_response", ({ data, error }) => {
@@ -113,7 +104,6 @@ const ControllerHome = () => {
 
   useEffect(() => {
     if (token) {
-      getUserBalances(token);
       getExchangeRates(token);
     }
   }, [token]);
