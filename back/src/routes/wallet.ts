@@ -5,7 +5,6 @@ import findWallet from "../controllers/wallets/find";
 import updateWallet from "../controllers/wallets/update";
 import deleteWallet from "../controllers/wallets/delete";
 import findUserBalances from "../controllers/wallets/findUserBalances";
-import calculateExchange from "../controllers/wallets/calculateExchange";
 
 const router = Router();
 
@@ -96,42 +95,6 @@ router.get(
 
       const result = await findUserBalances.execute({
         token,
-      });
-
-      return response.status(result.status).send(result.response);
-    } catch (error) {
-      return response.status(500).json({
-        error,
-      });
-    }
-  }
-);
-
-router.get(
-  "/calculate-exchange",
-  middlewareAuth,
-  async (request: Request, response: Response) => {
-    try {
-      const {
-        coinSender,
-        coinReceiver,
-        valueCoinSender,
-        valueCoinReceiver,
-        type,
-      } = request.body as {
-        coinSender: "BTC" | "USD";
-        coinReceiver: "BTC" | "USD";
-        valueCoinSender: string;
-        valueCoinReceiver: string;
-        type: "buy" | "sell";
-      };
-
-      const result = await calculateExchange.execute({
-        coinSender,
-        coinReceiver,
-        valueCoinSender,
-        valueCoinReceiver,
-        type,
       });
 
       return response.status(result.status).send(result.response);

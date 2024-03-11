@@ -2,32 +2,19 @@ import TextComponent from "components/text";
 import "./styles.scss";
 import { useState } from "react";
 import InputMarket from "components/inputMarket";
+import { ExchangeRates } from "pages/home/types";
+import { applyMaskCoin, maskOnlyNumberUSD } from "utils/mask";
 
-const CardMarket = () => {
+const CardMarket = ({
+  exchangeRates,
+  loadingRates,
+}: {
+  exchangeRates: ExchangeRates;
+  loadingRates: boolean;
+}) => {
   const [type, setType] = useState("buy");
-  const [coinSender, setCoinSender] = useState<"BTC" | "USD">("BTC");
   const [coinValueSender, setCoinValueSender] = useState("0");
-  const [coinReceiver, setCoinReceiver] = useState<"BTC" | "USD">("USD");
   const [coinValueReceiver, setCoinValueReceiver] = useState("0");
-
-  const handleChangeCoin = ({
-    type,
-    value,
-  }: {
-    type: string;
-    value: "BTC" | "USD";
-  }) => {
-    if (type === "coinSender") {
-      const coinReceiver = value === "BTC" ? "USD" : "BTC";
-      setCoinSender(value);
-      setCoinReceiver(coinReceiver);
-    }
-    if (type === "coinReceiver") {
-      const coinsSender = value === "BTC" ? "USD" : "BTC";
-      setCoinReceiver(value);
-      setCoinSender(coinsSender);
-    }
-  };
 
   // const translatorFunction = {
   //   buy: () => {},
@@ -37,6 +24,32 @@ const CardMarket = () => {
   const translatorButton = {
     sell: "Vender",
     buy: "Comprar",
+  };
+
+  const translatorLabelButton = {
+    sell: "Receber",
+    buy: "Gastar",
+  };
+
+  const handleChangeValue = ({
+    value,
+    type,
+  }: {
+    value: string;
+    type: string;
+  }) => {
+    if (type === "BTC") {
+      const valueInUSD = Number(value) * exchangeRates?.usdToBitcoinRate;
+      setCoinValueSender(value);
+      setCoinValueReceiver(applyMaskCoin(String(valueInUSD.toFixed(2)), "USD"));
+      return;
+    }
+
+    const valueInBitcoin =
+      maskOnlyNumberUSD(value) * exchangeRates?.bitcoinToUsdRate;
+    setCoinValueReceiver(value);
+    setCoinValueSender(String(valueInBitcoin.toFixed(8)));
+    return;
   };
 
   return (
@@ -58,26 +71,37 @@ const CardMarket = () => {
       </div>
 
       <div className="content-card-market">
-        <div>
-          <InputMarket
-            title={translatorButton[type]}
-            type="coinSender"
-            selectedCoin={coinSender}
-            handleChangeCoin={handleChangeCoin}
-            coinValue={coinValueSender}
-            setCoinValue={setCoinValueSender}
-          />
+        {loadingRates ? (
+          <div
+            className="d-flex w-100 justify-content-center align-items-center"
+            style={{ padding: "40px 0px" }}
+          >
+            <div
+              className="spinner-border"
+              role="status"
+              style={{ width: 22, height: 22 }}
+            />
+          </div>
+        ) : (
+          <div>
+            <InputMarket
+              title={translatorButton[type]}
+              selectedCoin="BTC"
+              coinValue={coinValueSender}
+              setCoinValue={setCoinValueSender}
+              handleChange={handleChangeValue}
+            />
 
-          <InputMarket
-            title="Receber"
-            type="coinReceiver"
-            selectedCoin={coinReceiver}
-            handleChangeCoin={handleChangeCoin}
-            coinValue={coinValueReceiver}
-            setCoinValue={setCoinValueReceiver}
-            style={{ marginTop: 10 }}
-          />
-        </div>
+            <InputMarket
+              title={translatorLabelButton[type]}
+              selectedCoin="USD"
+              coinValue={coinValueReceiver}
+              setCoinValue={setCoinValueReceiver}
+              handleChange={handleChangeValue}
+              style={{ marginTop: 10 }}
+            />
+          </div>
+        )}
 
         <button type="button" className="btn btn-dark">
           {translatorButton[type]}

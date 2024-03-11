@@ -25,6 +25,7 @@ const ControllerLogin = () => {
 
     const { username, token } = data;
     initializeSocket(`Bearer ${token}`);
+    toast.success("Logado com sucesso!");
     return navigation(`/dashboard/${username}`);
   };
 

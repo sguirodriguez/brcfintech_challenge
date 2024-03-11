@@ -5,8 +5,8 @@ import TextComponent from "components/text";
 import Balance from "components/balance";
 import btcIcon from "../../assets/icons/btc-icon.svg";
 import usdIcon from "../../assets/icons/usd-icon.svg";
-import { BalanceTypes } from "./controller";
 import { formatCurrency } from "utils/formatter";
+import { BalanceTypes, ExchangeRates } from "./types";
 
 const ScreenHome = ({
   handlers,
@@ -14,9 +14,11 @@ const ScreenHome = ({
   handlers: {
     balances: BalanceTypes[] | null;
     loadingBalances: boolean;
+    exchangeRates: ExchangeRates | null;
+    loadingRates: boolean;
   };
 }) => {
-  const { balances, loadingBalances } = handlers;
+  const { balances, loadingBalances, exchangeRates, loadingRates } = handlers;
 
   return (
     <Layout>
@@ -92,7 +94,7 @@ const ScreenHome = ({
           </div>
         </div>
 
-        <CardMarket />
+        <CardMarket exchangeRates={exchangeRates} loadingRates={loadingRates} />
       </div>
 
       <div className="container-table-style-default">
