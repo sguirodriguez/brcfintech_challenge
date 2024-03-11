@@ -7,6 +7,7 @@ import deleteOrder from "./controllers/order/delete";
 import socketAuthMiddleware from "./middleware/socketAuth";
 import userInfo from "./services/partners/userInfo";
 import findUserBalances from "./controllers/wallets/findUserBalances";
+import completeOrder from "./controllers/order/completeOrder";
 
 socketIo.use((socket, next) => {
   socketAuthMiddleware(socket, (error) => {
@@ -168,6 +169,40 @@ socketIo.on("connection", (socket) => {
       });
 
       socketIo.emit("repeat_get_all_orders");
+    } catch (error) {
+      console.log("SOCKET ERROR:", error);
+    }
+  });
+
+  socket.on("complete_order", async (data) => {
+    try {
+      const authToken = socket.handshake.headers["authorization"];
+
+      if (!authToken) {
+        return socket.emit("complete_order_response", {
+          error: "Não foi possível encontrar o usuário, faça login novamente.",
+        });
+      }
+
+      const user = await userInfo.getUserInfoSocket(
+        authToken,
+        socket,
+        "complete_order_response"
+      );
+
+      if (user?.id) {
+        await completeOrder.execute({
+          ...data,
+          userId: user?.id,
+        });
+
+        socket.emit("complete_order_response", {
+          data: false,
+          error: true,
+        });
+
+        socketIo.emit("repeat_get_all_orders");
+      }
     } catch (error) {
       console.log("SOCKET ERROR:", error);
     }

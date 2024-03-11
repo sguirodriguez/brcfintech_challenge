@@ -145,7 +145,7 @@ router.delete(
 );
 
 router.post(
-  "",
+  "/complete",
   middlewareAuth,
   async (request: Request, response: Response) => {
     try {

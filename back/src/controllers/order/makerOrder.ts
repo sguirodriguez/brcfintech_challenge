@@ -289,39 +289,58 @@ class MakeOrder {
         ? valueAfterDiscountFee
         : Number(walletDestination?.balance);
 
-    const valueDiscountInUSD = parseFloat(
-      Number(Number(order.amount) * data?.usdToBitcoinRate).toFixed(2)
-    );
+    const getValueDiscountInUSD = (value: number) => {
+      return parseFloat(
+        Number(Number(order.amount) * data?.usdToBitcoinRate).toFixed(2)
+      );
+    };
 
-    const valueBTCWhoIsBuying = this.calculateValue(
-      valueBTC,
+    const valueBTCWhoEmit = this.calculateValue({
+      value: valueBTC,
       type,
-      "FIRST",
-      Number(order?.amount)
-    );
+      instance: "FIRST",
+      discountOrSum: Number(order?.amount),
+      fixed: 8,
+    });
 
-    const valueUSDWhoIsBuying = this.calculateValue(
-      valueUSD,
+    const valueUSDWhoEmit = this.calculateValue({
+      value: valueUSD,
       type,
-      "SECOND",
-      valueDiscountInUSD
-    );
+      instance: "SECOND",
+      discountOrSum: getValueDiscountInUSD(order.amount),
+      fixed: 2,
+    });
 
-    const valueBTCWhoIsSelling = this.calculateValue(
-      valueBTC,
-      type,
-      "FIRST",
-      Number(order?.amount),
-      false
-    );
+    const valueBTCWhoListening = this.calculateValue({
+      value:
+        walletDestinationOwnerOrder.currencies.symbol === "BTC"
+          ? Number(walletDestinationOwnerOrder.balance)
+          : Number(walletOwnerOrder.balance),
+      type: order.type,
+      instance: "FIRST",
+      discountOrSum: Number(order?.amount),
+      emitter: false,
+      fixed: 8,
+    });
 
-    const valueUSDWhoIsSelling = this.calculateValue(
-      valueBTC,
-      type,
-      "SECOND",
-      Number(order?.amount),
-      false
-    );
+    const valueUSDWhoListening = this.calculateValue({
+      value:
+        walletDestinationOwnerOrder.currencies.symbol === "USD"
+          ? Number(walletDestinationOwnerOrder.balance)
+          : Number(walletOwnerOrder.balance),
+      type: order.type,
+      instance: "SECOND",
+      discountOrSum: getValueDiscountInUSD(order?.amount),
+      emitter: false,
+      fixed: 2,
+    });
+
+    console.log("values", {
+      valueBTCWhoEmit,
+      valueUSDWhoEmit,
+      valueBTCWhoListening,
+      valueUSDWhoListening,
+    });
 
     const makeTransactionOderAndDiscount = await sequelize.transaction(
       async (t) => {
@@ -334,8 +353,8 @@ class MakeOrder {
             currencyId: wallet?.currencies?.id,
             amount:
               wallet?.currencies?.symbol === "BTC"
-                ? valueBTCWhoIsBuying
-                : valueUSDWhoIsBuying,
+                ? valueBTCWhoEmit
+                : valueUSDWhoEmit,
             kind: "debit",
           },
           { transaction: t }
@@ -346,12 +365,12 @@ class MakeOrder {
             balance: sequelize.literal(
               `${
                 wallet?.currencies?.symbol === "BTC"
-                  ? valueBTCWhoIsBuying
-                  : valueUSDWhoIsBuying
+                  ? valueBTCWhoEmit
+                  : valueUSDWhoEmit
               }`
             ),
           },
-          { where: { id: wallet.id }, transaction: t }
+          { where: { id: wallet?.id }, transaction: t }
         );
 
         await Wallets.update(
@@ -359,8 +378,8 @@ class MakeOrder {
             balance: sequelize.literal(
               `${
                 walletDestination?.currencies?.symbol === "BTC"
-                  ? valueBTCWhoIsBuying
-                  : valueUSDWhoIsBuying
+                  ? valueBTCWhoEmit
+                  : valueUSDWhoEmit
               }`
             ),
           },
@@ -372,8 +391,8 @@ class MakeOrder {
             balance: sequelize.literal(
               `${
                 walletOwnerOrder?.currencies?.symbol === "BTC"
-                  ? valueBTCWhoIsSelling
-                  : valueUSDWhoIsSelling
+                  ? valueUSDWhoListening
+                  : valueBTCWhoListening
               }`
             ),
           },
@@ -385,8 +404,8 @@ class MakeOrder {
             balance: sequelize.literal(
               `${
                 walletDestinationOwnerOrder?.currencies?.symbol === "BTC"
-                  ? valueBTCWhoIsSelling
-                  : valueUSDWhoIsSelling
+                  ? valueBTCWhoListening
+                  : valueUSDWhoListening
               }`
             ),
           },
@@ -441,41 +460,48 @@ class MakeOrder {
     };
   }
 
-  calculateValue(
-    value: number,
-    type: "buy" | "sell",
-    instance: "FIRST" | "SECOND",
-    discountOrSum: number,
-    emitter: boolean = true
-  ) {
+  calculateValue({
+    value,
+    type,
+    instance,
+    discountOrSum,
+    emitter = true,
+    fixed,
+  }: {
+    value: number;
+    type: string;
+    instance: "FIRST" | "SECOND";
+    discountOrSum: number;
+    emitter?: boolean;
+    fixed: number;
+  }) {
     if (emitter) {
       if (instance === "FIRST" && type === "sell") {
-        return parseFloat(Number(value + Number(discountOrSum)).toFixed(8));
+        return parseFloat(Number(value - Number(discountOrSum)).toFixed(fixed));
       }
       if (instance === "FIRST" && type === "buy") {
-        return parseFloat(Number(value - Number(discountOrSum)).toFixed(8));
+        return parseFloat(Number(value + Number(discountOrSum)).toFixed(fixed));
       }
       if (instance === "SECOND" && type === "buy") {
-        return parseFloat(Number(value + Number(discountOrSum)).toFixed(8));
+        return parseFloat(Number(value - Number(discountOrSum)).toFixed(fixed));
       }
       if (instance === "SECOND" && type === "sell") {
-        console.log("o que vem", value, discountOrSum);
-        return parseFloat(Number(value - Number(discountOrSum)).toFixed(8));
+        return parseFloat(Number(value + Number(discountOrSum)).toFixed(fixed));
       }
       return;
     }
 
     if (instance === "FIRST" && type === "sell") {
-      return parseFloat(Number(value + Number(discountOrSum)).toFixed(8));
+      return parseFloat(Number(value - Number(discountOrSum)).toFixed(fixed));
     }
     if (instance === "FIRST" && type === "buy") {
-      return parseFloat(Number(value - Number(discountOrSum)).toFixed(8));
+      return parseFloat(Number(value + Number(discountOrSum)).toFixed(fixed));
     }
     if (instance === "SECOND" && type === "buy") {
-      return parseFloat(Number(value + Number(discountOrSum)).toFixed(8));
+      return parseFloat(Number(value - Number(discountOrSum)).toFixed(fixed));
     }
     if (instance === "SECOND" && type === "sell") {
-      return parseFloat(Number(value - Number(discountOrSum)).toFixed(8));
+      return parseFloat(Number(value + Number(discountOrSum)).toFixed(fixed));
     }
   }
 }

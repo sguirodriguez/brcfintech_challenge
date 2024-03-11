@@ -5,6 +5,7 @@ import findWallet from "../controllers/wallets/find";
 import updateWallet from "../controllers/wallets/update";
 import deleteWallet from "../controllers/wallets/delete";
 import findUserBalances from "../controllers/wallets/findUserBalances";
+import userInfo from "../services/partners/userInfo";
 
 const router = Router();
 
@@ -91,10 +92,13 @@ router.get(
   middlewareAuth,
   async (request: Request, response: Response) => {
     try {
-      const token = request.headers.authorization as string;
+      const user = await userInfo.getUserInfoByToken(
+        String(request.headers.authorization),
+        response
+      );
 
       const result = await findUserBalances.execute({
-        token,
+        userId: user.id,
       });
 
       return response.status(result.status).send(result.response);
