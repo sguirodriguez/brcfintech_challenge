@@ -36,7 +36,7 @@ socketIo.on("connection", (socket) => {
 
     if (!authToken) {
       return socket.emit("make_order_response", {
-        error: "Não foi possível encontrar o usuário.",
+        error: "Não foi possível encontrar o usuário, faça login novamente.",
       });
     }
 
@@ -46,17 +46,19 @@ socketIo.on("connection", (socket) => {
       "make_order_response"
     );
 
-    const { response } = await makerOrder.execute({
-      ...data,
-      userId: user?.id,
-    });
+    if (user?.id) {
+      const { response } = await makerOrder.execute({
+        ...data,
+        userId: user?.id,
+      });
 
-    socket.emit("make_order_response", {
-      data: response.data,
-      error: response.error,
-    });
+      socket.emit("make_order_response", {
+        data: response.data,
+        error: response.error,
+      });
 
-    socketIo.emit("repeat_get_all_orders");
+      socketIo.emit("repeat_get_all_orders");
+    }
   });
 
   socket.on("get_all_orders", async () => {

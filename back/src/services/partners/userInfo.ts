@@ -42,7 +42,7 @@ const getUserInfoSocket = async (
 
   if (!token || !token?.[1]) {
     return socket.emit(emitString, {
-      error: "Não foi possível encontrar o usuário.",
+      error: "Não foi possível encontrar o usuário, faça login novamente.",
     });
   }
 
@@ -54,7 +54,7 @@ const getUserInfoSocket = async (
 
   if (!user) {
     return socket.emit(emitString, {
-      error: "Não foi possível encontrar o usuário.",
+      error: "Não foi possível encontrar o usuário, faça login novamente.",
     });
   }
 

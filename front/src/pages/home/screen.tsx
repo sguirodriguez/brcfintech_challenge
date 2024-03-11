@@ -66,15 +66,11 @@ const ScreenHome = ({
               })
             )}
           </div>
-          <div className="balances">
-            <Balance
-              title="Máximo em 24h (USD > BTC)"
-              value="0.2333"
-              coin="USD"
-            />
-            <Balance title="Mínimo em 24h (USD > BTC)" value="123" coin="USD" />
-          </div>
-          <div className="container-table-style-default">
+
+          <div
+            className="container-table-style-default"
+            style={{ maxHeight: 411, minHeight: 411 }}
+          >
             <TextComponent style={{ marginBottom: 20 }}>Ordens</TextComponent>
             <table className="table">
               <thead>
@@ -88,6 +84,14 @@ const ScreenHome = ({
               <tbody>
                 {loadingOrders ? (
                   <LoadingComponent />
+                ) : !orders || orders?.length === 0 ? (
+                  <tr>
+                    <td>
+                      <TextComponent style={{ color: "black", marginTop: 50 }}>
+                        Sem ordens para mostrar...
+                      </TextComponent>
+                    </td>
+                  </tr>
                 ) : (
                   orders?.map((item, index) => {
                     return (
@@ -116,21 +120,27 @@ const ScreenHome = ({
               <th scope="col">Nome</th>
               <th scope="col">último Preço</th>
               <th scope="col">Volume 24h</th>
+              <th scope="col">Máximo em 24h (USD - BTC)</th>
+              <th scope="col">Mínimo em 24h (USD - BTC)</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>
+              <td style={{ width: "15%" }}>
                 <img src={btcIcon} width={25} height={25} alt="" /> {`BTC`}
               </td>
               <td>49.223</td>
               <td>0.004</td>
+              <td>0.004</td>
+              <td>0.004</td>
             </tr>
             <tr>
-              <td>
+              <td style={{ width: "15%" }}>
                 <img src={usdIcon} width={25} height={25} alt="" /> {`USD`}
               </td>
               <td>49.223</td>
+              <td>0.004</td>
+              <td>0.004</td>
               <td>0.004</td>
             </tr>
           </tbody>
@@ -152,6 +162,14 @@ const ScreenHome = ({
           <tbody>
             {loadingOrders ? (
               <LoadingComponent />
+            ) : !myOrders || myOrders?.length === 0 ? (
+              <tr>
+                <td>
+                  <TextComponent style={{ color: "black", marginTop: 50 }}>
+                    Sem ordens para mostrar...
+                  </TextComponent>
+                </td>
+              </tr>
             ) : (
               myOrders?.map((item, index) => {
                 return (

@@ -33,10 +33,9 @@ const Layout = ({ children }: { children?: ReactNode }) => {
       if (error) return navigation("/login");
 
       initializeSocket(`Bearer ${data?.token}`);
-      setLoading(false);
+      return setLoading(false);
     }
     setLoading(false);
-    return;
   };
 
   useEffect(() => {
