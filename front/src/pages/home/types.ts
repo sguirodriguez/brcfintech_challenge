@@ -22,3 +22,12 @@ export interface ExchangeRates {
   usdToBitcoinRate: number;
   bitcoinToUsdRate: number;
 }
+
+export interface Order {
+  id: number;
+  currencyId: number;
+  currencyAmount: number;
+  amount: number;
+  type: string;
+  status: string;
+}

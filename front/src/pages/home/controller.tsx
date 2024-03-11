@@ -2,7 +2,7 @@ import request from "utils/request/request";
 import ScreenHome from "./screen";
 import { useEffect, useState } from "react";
 import { useAuth } from "context/auth";
-import { BalanceTypes, ExchangeRates } from "./types";
+import { BalanceTypes, ExchangeRates, Order } from "./types";
 import { toast } from "react-toastify";
 
 const ControllerHome = () => {
@@ -14,6 +14,7 @@ const ControllerHome = () => {
   );
   const [loadingBalances, setLoadingBalances] = useState(false);
   const [loadingRates, setLoadingRates] = useState(false);
+  const [orders, setOrders] = useState<Order[] | null>(null);
 
   const getUserBalances = async (token: string) => {
     setLoadingBalances(true);
@@ -57,8 +58,23 @@ const ControllerHome = () => {
 
   useEffect(() => {
     if (socketInstance) {
+      socketInstance.emit("get_all_orders");
+
       socketInstance.on("user_token", (data) => {
         setToken(data);
+      });
+
+      socketInstance.on("repeat_get_all_orders", () => {
+        socketInstance.emit("get_all_orders");
+      });
+
+      socketInstance.on("get_all_orders_response", ({ data, error }) => {
+        if (error) {
+          setOrders(null);
+          return toast.error(error);
+        }
+
+        setOrders(data);
       });
     }
   }, [socketInstance]);
@@ -75,11 +91,13 @@ const ControllerHome = () => {
     loadingBalances: boolean;
     exchangeRates: ExchangeRates | null;
     loadingRates: boolean;
+    orders: Order[] | null;
   } = {
     balances,
     loadingBalances,
     exchangeRates,
     loadingRates,
+    orders,
   };
   return <ScreenHome handlers={handlers} />;
 };

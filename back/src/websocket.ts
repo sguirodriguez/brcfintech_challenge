@@ -1,8 +1,18 @@
 import { socketIo } from "./app";
 import calculateExchange from "./controllers/order/calculateExchange";
+import findAllOrders from "./controllers/order/findAllOrders";
 import makerOrder from "./controllers/order/makerOrder";
-import Users from "./database/models/users";
 import socketAuthMiddleware from "./middleware/socketAuth";
+import userInfo from "./services/partners/userInfo";
+
+socketIo.use((socket, next) => {
+  socketAuthMiddleware(socket, (error) => {
+    if (error) {
+      return next(error);
+    }
+    next();
+  });
+});
 
 socketIo.on("connection", (socket) => {
   console.log("conectado");
@@ -22,7 +32,6 @@ socketIo.on("connection", (socket) => {
 
   socket.on("make_order", async (data) => {
     const authToken = socket.handshake.headers["authorization"];
-    const token = authToken?.split(" ");
 
     if (!authToken) {
       return socket.emit("make_order_response", {
@@ -30,17 +39,11 @@ socketIo.on("connection", (socket) => {
       });
     }
 
-    const user = await Users.findOne({
-      where: {
-        token: token?.[1],
-      },
-    });
-
-    if (!user) {
-      return socket.emit("make_order_response", {
-        error: "Não foi possível encontrar o usuário.",
-      });
-    }
+    const user = await userInfo.getUserInfoSocket(
+      authToken,
+      socket,
+      "make_order_response"
+    );
 
     const { response } = await makerOrder.execute({
       ...data,
@@ -51,14 +54,30 @@ socketIo.on("connection", (socket) => {
       data: response.data,
       error: response.error,
     });
-  });
-});
 
-socketIo.use((socket, next) => {
-  socketAuthMiddleware(socket, (error) => {
-    if (error) {
-      return next(error);
+    socketIo.emit("repeat_get_all_orders");
+  });
+
+  socket.on("get_all_orders", async () => {
+    const authToken = socket.handshake.headers["authorization"];
+
+    if (!authToken) {
+      return socket.emit("get_all_orders_response", {
+        error: "Não foi possível encontrar o usuário.",
+      });
     }
-    next();
+
+    const user = await userInfo?.getUserInfoSocket(
+      authToken,
+      socket,
+      "get_all_orders_response"
+    );
+
+    const { response } = await findAllOrders.execute(user.id);
+
+    socket.emit("get_all_orders_response", {
+      data: response.data,
+      error: response.error,
+    });
   });
 });

@@ -4,7 +4,8 @@ import middlewareAuth from "../middleware/auth";
 import calculateExchange from "../controllers/order/calculateExchange";
 import exchangeRate from "../controllers/order/exchangeRate";
 import makerOrder from "../controllers/order/makerOrder";
-import Users from "../database/models/users";
+import findAllOrders from "../controllers/order/findAllOrders";
+import userInfo from "../services/partners/userInfo";
 
 const router = Router();
 
@@ -61,26 +62,10 @@ router.post(
         type: "buy" | "sell";
       };
 
-      const authToken = request.headers.authorization;
-      const token = authToken?.split(" ");
-
-      if (!authToken) {
-        return response
-          .status(401)
-          .json({ error: "Erro ao autenticar, faça login novamente." });
-      }
-
-      const user = await Users.findOne({
-        where: {
-          token: token?.[1],
-        },
-      });
-
-      if (!user) {
-        return response
-          .status(500)
-          .json({ error: "Erro ao encontrar usuário." });
-      }
+      const user = await userInfo.getUserInfoByToken(
+        String(request.headers.authorization),
+        response
+      );
 
       const result = await makerOrder.execute({
         userId: user?.id,
@@ -88,6 +73,27 @@ router.post(
         coin,
         type,
       });
+
+      return response.status(result.status).send(result.response);
+    } catch (error) {
+      return response.status(500).json({
+        error,
+      });
+    }
+  }
+);
+
+router.get(
+  "/all",
+  middlewareAuth,
+  async (request: Request, response: Response) => {
+    try {
+      const user = await userInfo.getUserInfoByToken(
+        String(request.headers.authorization),
+        response
+      );
+
+      const result = await findAllOrders.execute(user.id);
 
       return response.status(result.status).send(result.response);
     } catch (error) {
