@@ -11,25 +11,15 @@ router.get(
   middlewareAuth,
   async (request: Request, response: Response) => {
     try {
-      const {
-        coinSender,
-        coinReceiver,
-        valueCoinSender,
-        valueCoinReceiver,
-        type,
-      } = request.body as {
-        coinSender: "BTC" | "USD";
-        coinReceiver: "BTC" | "USD";
-        valueCoinSender: string;
-        valueCoinReceiver: string;
+      const { value, coin, type } = request.body as {
+        value: number;
+        coin: "BTC" | "USD";
         type: "buy" | "sell";
       };
 
       const result = await calculateExchange.execute({
-        coinSender,
-        coinReceiver,
-        valueCoinSender,
-        valueCoinReceiver,
+        value,
+        coin,
         type,
       });
 

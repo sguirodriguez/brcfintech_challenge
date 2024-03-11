@@ -1,9 +1,11 @@
 import TextComponent from "components/text";
 import "./styles.scss";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import InputMarket from "components/inputMarket";
 import { ExchangeRates } from "pages/home/types";
 import { applyMaskCoin, maskOnlyNumberUSD } from "utils/mask";
+import { useAuth } from "context/auth";
+import { toast } from "react-toastify";
 
 const CardMarket = ({
   exchangeRates,
@@ -12,9 +14,15 @@ const CardMarket = ({
   exchangeRates: ExchangeRates;
   loadingRates: boolean;
 }) => {
+  const { socketInstance } = useAuth();
   const [type, setType] = useState("buy");
-  const [coinValueSender, setCoinValueSender] = useState("0");
-  const [coinValueReceiver, setCoinValueReceiver] = useState("0");
+  const [bitcoinValue, setBitcoinValue] = useState("0");
+  const [usdValue, setUsdValue] = useState("0");
+  const [fee, setFee] = useState<{
+    value: number;
+    fee: number;
+    coin: "BTC" | "USD";
+  } | null>(null);
 
   // const translatorFunction = {
   //   buy: () => {},
@@ -40,31 +48,76 @@ const CardMarket = ({
   }) => {
     if (type === "BTC") {
       const valueInUSD = Number(value) * exchangeRates?.usdToBitcoinRate;
-      setCoinValueSender(value);
-      setCoinValueReceiver(applyMaskCoin(String(valueInUSD.toFixed(2)), "USD"));
+      setBitcoinValue(value);
+      setUsdValue(applyMaskCoin(String(valueInUSD?.toFixed(2)), "USD"));
       return;
     }
 
     const valueInBitcoin =
       maskOnlyNumberUSD(value) * exchangeRates?.bitcoinToUsdRate;
-    setCoinValueReceiver(value);
-    setCoinValueSender(String(valueInBitcoin.toFixed(8)));
+    setUsdValue(value);
+    setBitcoinValue(String(valueInBitcoin?.toFixed(8)));
     return;
   };
+
+  const findFee = () => {
+    if (maskOnlyNumberUSD(usdValue) < 1) {
+      return;
+    }
+
+    socketInstance.emit("find_fee_exchange", {
+      value: Number(Number(bitcoinValue)?.toFixed(8)),
+      coin: "BTC",
+      type: type,
+    });
+  };
+
+  const getValueFeeInUsd = () => {
+    const valueInUSD = Number(fee?.value) * exchangeRates?.usdToBitcoinRate;
+    return applyMaskCoin(String(valueInUSD?.toFixed(2)), "USD");
+  };
+
+  useEffect(() => {
+    findFee();
+  }, [usdValue]);
+
+  useEffect(() => {
+    if (socketInstance) {
+      socketInstance.on("fee_exchange_values", ({ data, error }) => {
+        if (error) {
+          toast.error(error);
+        }
+        setFee(data);
+      });
+    }
+  }, [socketInstance]);
+
+  const showWarningMessage =
+    maskOnlyNumberUSD(usdValue) > 0 && maskOnlyNumberUSD(usdValue) < 1;
+
+  const showFee = fee?.value && maskOnlyNumberUSD(usdValue) > 1;
 
   return (
     <div className="container-card-market">
       <div className="card-market-tabs">
         <div
           className={`left-tab ${type !== "buy" && "not-selected-tab"}`}
-          onClick={() => setType("buy")}
+          onClick={() => {
+            setType("buy");
+            setBitcoinValue("0");
+            setUsdValue("0");
+          }}
         >
           <TextComponent>Comprar</TextComponent>
         </div>
         <div className="middle-in-tabs"></div>
         <div
           className={`right-tab ${type !== "sell" && "not-selected-tab"}`}
-          onClick={() => setType("sell")}
+          onClick={() => {
+            setType("sell");
+            setBitcoinValue("0");
+            setUsdValue("0");
+          }}
         >
           <TextComponent>Vender</TextComponent>
         </div>
@@ -87,19 +140,34 @@ const CardMarket = ({
             <InputMarket
               title={translatorButton[type]}
               selectedCoin="BTC"
-              coinValue={coinValueSender}
-              setCoinValue={setCoinValueSender}
+              coinValue={bitcoinValue}
+              setCoinValue={setBitcoinValue}
               handleChange={handleChangeValue}
             />
 
             <InputMarket
               title={translatorLabelButton[type]}
               selectedCoin="USD"
-              coinValue={coinValueReceiver}
-              setCoinValue={setCoinValueReceiver}
+              coinValue={usdValue}
+              setCoinValue={setUsdValue}
               handleChange={handleChangeValue}
               style={{ marginTop: 10 }}
             />
+
+            {showWarningMessage && (
+              <TextComponent style={{ marginTop: 10, color: "red" }}>
+                * O valor precisa ser maior que 1 USD
+              </TextComponent>
+            )}
+
+            {showFee && (
+              <TextComponent style={{ marginTop: 10 }}>
+                {`* Uma taxa de ${fee?.fee}% será cobrada`}
+                <br />
+                <br />
+                taxa: {getValueFeeInUsd()} USD
+              </TextComponent>
+            )}
           </div>
         )}
 
