@@ -97,12 +97,12 @@ socketIo.on("connection", (socket) => {
     }
   });
 
-  socket.on("get_my_orders", async () => {
+  socket.on("my_orders", async () => {
     try {
       const authToken = socket.handshake.headers["authorization"];
 
       if (!authToken) {
-        return socket.emit("get_my_orders_response", {
+        return socket.emit("my_orders_response", {
           error: "Não foi possível encontrar o usuário.",
         });
       }
@@ -110,12 +110,12 @@ socketIo.on("connection", (socket) => {
       const user = await userInfo?.getUserInfoSocket(
         authToken,
         socket,
-        "get_my_orders_response"
+        "my_orders_response"
       );
 
       const { response } = await findOrders.execute(user.id);
 
-      socket.emit("get_my_orders_response", {
+      socket.emit("my_orders_response", {
         data: response.data,
         error: response.error,
       });

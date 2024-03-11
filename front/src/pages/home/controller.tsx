@@ -71,11 +71,12 @@ const ControllerHome = () => {
         setToken(data);
       });
       socketInstance.emit("get_all_orders");
-      socketInstance.emit("get_my_orders");
+      socketInstance.emit("my_orders");
 
       socketInstance.on("repeat_get_all_orders", () => {
         socketInstance.emit("get_all_orders");
-        socketInstance.emit("get_my_orders");
+
+        socketInstance.emit("my_orders");
       });
 
       socketInstance.on("get_all_orders_response", ({ data, error }) => {
@@ -88,7 +89,7 @@ const ControllerHome = () => {
         setOrders(data);
       });
 
-      socketInstance.on("get_my_orders_response", ({ data, error }) => {
+      socketInstance.on("my_orders_response", ({ data, error }) => {
         setLoadingOrders(false);
         if (error) {
           setMyOrders(null);
@@ -98,7 +99,7 @@ const ControllerHome = () => {
         setMyOrders(data);
       });
 
-      socketInstance.on("delete_my_order_response", ({ data, error }) => {
+      socketInstance.on("delete_my_order_response", ({ error }) => {
         if (error) {
           return toast.error(error);
         }

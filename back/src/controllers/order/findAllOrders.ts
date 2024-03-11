@@ -4,42 +4,57 @@ import { Op } from "sequelize";
 
 class FindAllOrders {
   async execute(userId: number) {
-    const wallet = await Wallets.findOne({
-      where: {
-        userId,
-      },
-    });
+    try {
+      const wallets = await Wallets.findAll({
+        where: {
+          userId,
+        },
+      });
 
-    if (!wallet) {
+      if (!wallets || wallets.length === 0) {
+        return {
+          status: 404,
+          response: {
+            error: "Nenhuma carteira encontrada para este usuário",
+          },
+        };
+      }
+
+      const walletIds = wallets.map((wallet) => wallet.id);
+
+      const orders = await Orders.findAll({
+        where: {
+          walletId: {
+            [Op.notIn]: walletIds,
+          },
+          status: "pending",
+        },
+        order: [["createdAt", "DESC"]],
+      });
+
+      if (!orders) {
+        return {
+          status: 404,
+          response: {
+            error: "Nenhuma ordem encontrada.",
+          },
+        };
+      }
+
+      return {
+        status: 200,
+        response: {
+          data: orders,
+        },
+      };
+    } catch (error) {
       return {
         status: 500,
         response: {
-          error: "Carteira não encontrada",
+          error: "Erro interno do servidor",
         },
       };
     }
-
-    const orders = await Orders.findAll({
-      where: {
-        walletId: { [Op.ne]: wallet.id },
-      },
-    });
-
-    if (!orders) {
-      return {
-        status: 500,
-        response: {
-          error: "Carteira não encontrada",
-        },
-      };
-    }
-
-    return {
-      status: 200,
-      response: {
-        data: orders,
-      },
-    };
   }
 }
 

@@ -81,7 +81,7 @@ class CalculateEchange {
     const findOrder = await Orders.findOne({
       where: {
         currencyId: coinInfo?.id,
-        currencyAmount: values.value,
+        amount: values.value,
         type: typeOrder,
       },
     });
