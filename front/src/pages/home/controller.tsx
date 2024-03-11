@@ -2,7 +2,7 @@ import request from "utils/request/request";
 import ScreenHome from "./screen";
 import { useEffect, useState } from "react";
 import { useAuth } from "context/auth";
-import { BalanceTypes, ExchangeRates, Order } from "./types";
+import { BalanceTypes, ExchangeRates, Order, Transaction } from "./types";
 import { toast } from "react-toastify";
 
 const ControllerHome = () => {
@@ -17,6 +17,11 @@ const ControllerHome = () => {
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [myOrders, setMyOrders] = useState<Order[] | null>(null);
   const [loadingOrders, setLoadingOrders] = useState(true);
+  const [transactions, setTransaction] = useState<Transaction[] | null>(null);
+  const [loadingTransactions, setLoadingTransactions] = useState(true);
+  const [myTransactions, setMyTransactions] = useState<Transaction[] | null>(
+    null
+  );
 
   const getExchangeRates = async (token: string) => {
     setLoadingRates(true);
@@ -66,11 +71,17 @@ const ControllerHome = () => {
       socketInstance.emit("get_user_balances");
       socketInstance.emit("get_all_orders");
       socketInstance.emit("my_orders");
+      socketInstance.emit("get_all_transactions");
+      socketInstance.emit("get_my_transactions");
 
       socketInstance.on("repeat_get_all_orders", () => {
+        setLoadingBalances(true);
+        setLoadingTransactions(true);
         socketInstance.emit("get_all_orders");
         socketInstance.emit("get_user_balances");
         socketInstance.emit("my_orders");
+        socketInstance.emit("get_all_transactions");
+        socketInstance.emit("get_my_transactions");
       });
 
       socketInstance.on("get_user_balances_response", ({ data, error }) => {
@@ -118,6 +129,26 @@ const ControllerHome = () => {
 
         return toast.success("Ordem completada com sucesso.");
       });
+
+      socketInstance.on("get_all_transactions_response", ({ data, error }) => {
+        setLoadingTransactions(false);
+        if (error) {
+          setTransaction(null);
+          return toast.error(error);
+        }
+
+        setTransaction(data);
+      });
+
+      socketInstance.on("get_my_transactions_response", ({ data, error }) => {
+        setLoadingTransactions(false);
+        if (error) {
+          setMyTransactions(null);
+          return toast.error(error);
+        }
+
+        setMyTransactions(data);
+      });
     }
 
     if (!socketInstance) return;
@@ -144,6 +175,9 @@ const ControllerHome = () => {
       type: "buy" | "sell";
       orderId: number;
     }) => void;
+    transactions: Transaction[] | null;
+    loadingTransactions: boolean;
+    myTransactions: Transaction[] | null;
   } = {
     balances,
     loadingBalances,
@@ -154,6 +188,9 @@ const ControllerHome = () => {
     myOrders,
     handleDeleteOrder,
     handleCompleteOrder,
+    transactions,
+    loadingTransactions,
+    myTransactions,
   };
   return <ScreenHome handlers={handlers} />;
 };

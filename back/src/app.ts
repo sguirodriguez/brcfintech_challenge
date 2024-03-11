@@ -6,6 +6,7 @@ import userRoutes from "./routes/user";
 import currencyRoutes from "./routes/currency";
 import walletRoutes from "./routes/wallet";
 import orderRoutes from "./routes/order";
+import transactionRoutes from "./routes/transactions";
 import configuration from "./config";
 import { Server } from "socket.io";
 import http from "http";
@@ -20,6 +21,7 @@ app.use("/user", userRoutes);
 app.use("/currency", currencyRoutes);
 app.use("/wallet", walletRoutes);
 app.use("/order", orderRoutes);
+app.use("/transaction", transactionRoutes);
 
 const server = http.createServer(app);
 

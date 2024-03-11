@@ -8,6 +8,8 @@ import socketAuthMiddleware from "./middleware/socketAuth";
 import userInfo from "./services/partners/userInfo";
 import findUserBalances from "./controllers/wallets/findUserBalances";
 import completeOrder from "./controllers/order/completeOrder";
+import findAllTransactions from "./controllers/transaction/findAll";
+import findTransactions from "./controllers/transaction/find";
 
 socketIo.use((socket, next) => {
   socketAuthMiddleware(socket, (error) => {
@@ -203,6 +205,64 @@ socketIo.on("connection", (socket) => {
 
         socketIo.emit("repeat_get_all_orders");
       }
+    } catch (error) {
+      console.log("SOCKET ERROR:", error);
+    }
+  });
+
+  socket.on("get_all_transactions", async () => {
+    try {
+      const authToken = socket.handshake.headers["authorization"];
+
+      if (!authToken) {
+        return socket.emit("get_all_transactions_response", {
+          error: "Não foi possível encontrar o usuário.",
+        });
+      }
+
+      const user = await userInfo?.getUserInfoSocket(
+        authToken,
+        socket,
+        "get_all_transactions_response"
+      );
+
+      const { response } = await findAllTransactions.execute({
+        userId: user.id,
+      });
+
+      socket.emit("get_all_transactions_response", {
+        data: response.data,
+        error: response.error,
+      });
+    } catch (error) {
+      console.log("SOCKET ERROR:", error);
+    }
+  });
+
+  socket.on("get_my_transactions", async () => {
+    try {
+      const authToken = socket.handshake.headers["authorization"];
+
+      if (!authToken) {
+        return socket.emit("get_my_transactions_response", {
+          error: "Não foi possível encontrar o usuário.",
+        });
+      }
+
+      const user = await userInfo?.getUserInfoSocket(
+        authToken,
+        socket,
+        "get_my_transactions_response"
+      );
+
+      const { response } = await findTransactions.execute({
+        userId: user.id,
+      });
+
+      socket.emit("get_my_transactions_response", {
+        data: response.data,
+        error: response.error,
+      });
     } catch (error) {
       console.log("SOCKET ERROR:", error);
     }

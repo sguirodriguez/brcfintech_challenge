@@ -346,8 +346,8 @@ class MakeOrder {
             currencyId: wallet?.currencies?.id,
             amount:
               wallet?.currencies?.symbol === "BTC"
-                ? valueBTCWhoEmit
-                : valueUSDWhoEmit,
+                ? Number(order?.amount)
+                : getValueDiscountInUSD(order?.amount),
             kind: "debit",
           },
           { transaction: t }

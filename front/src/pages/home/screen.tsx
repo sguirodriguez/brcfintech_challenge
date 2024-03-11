@@ -6,7 +6,7 @@ import Balance from "components/balance";
 import btcIcon from "../../assets/icons/btc-icon.svg";
 import usdIcon from "../../assets/icons/usd-icon.svg";
 import { formatCurrency } from "utils/formatter";
-import { BalanceTypes, ExchangeRates, Order } from "./types";
+import { BalanceTypes, ExchangeRates, Order, Transaction } from "./types";
 import { applyMaskCoin } from "utils/mask";
 import LoadingComponent from "components/loading";
 
@@ -28,6 +28,9 @@ const ScreenHome = ({
       type: string;
       orderId: number;
     }) => void;
+    transactions: Transaction[] | null;
+    loadingTransactions: boolean;
+    myTransactions: Transaction[] | null;
   };
 }) => {
   const {
@@ -40,7 +43,11 @@ const ScreenHome = ({
     myOrders,
     handleDeleteOrder,
     handleCompleteOrder,
+    transactions,
+    loadingTransactions,
+    myTransactions,
   } = handlers;
+
   const translatorType = {
     buy: "Compra",
     sell: "Á venda",
@@ -50,7 +57,11 @@ const ScreenHome = ({
     const valueInUSD = Number(value) * exchangeRates?.usdToBitcoinRate;
     return applyMaskCoin(String(valueInUSD?.toFixed(2)), "USD");
   };
-
+  // !orders || orders?.length === 0 ? (
+  //   <TextComponent style={{ color: "black", marginTop: 50 }}>
+  //     Sem ordens para mostrar...
+  //   </TextComponent>
+  // ) :
   return (
     <Layout>
       <div className="container-card-and-table-global">
@@ -62,7 +73,7 @@ const ScreenHome = ({
               balances?.map((item, index) => {
                 return (
                   <Balance
-                    key={item.id + index}
+                    key={item?.id + index}
                     title={`Saldo ${item.currencies.symbol}`}
                     value={formatCurrency(
                       Number(item.balance),
@@ -78,34 +89,24 @@ const ScreenHome = ({
 
           <div
             className="container-table-style-default"
-            style={{ maxHeight: 411, minHeight: 411 }}
+            style={{ maxHeight: 411, minHeight: 411, overflowY: "auto" }}
           >
             <TextComponent style={{ marginBottom: 20 }}>Ordens</TextComponent>
-            <table className="table">
-              <thead>
-                <tr>
-                  <th scope="col">Moeda BTC</th>
-                  <th scope="col">Valor em USD</th>
-                  <th scope="col">Tipo</th>
-                  <th scope="col"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {loadingOrders ? (
-                  <LoadingComponent />
-                ) : !orders || orders?.length === 0 ? (
+
+            {loadingOrders ? (
+              <LoadingComponent />
+            ) : (
+              <table className="table">
+                <thead>
                   <tr>
-                    <td>
-                      <TextComponent style={{ color: "black", marginTop: 50 }}>
-                        Sem ordens para mostrar...
-                      </TextComponent>
-                    </td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <th scope="col">Moeda BTC</th>
+                    <th scope="col">Valor em USD</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col"></th>
                   </tr>
-                ) : (
-                  orders?.map((item, index) => {
+                </thead>
+                <tbody>
+                  {orders?.map((item, index) => {
                     return (
                       <tr key={item.id + index}>
                         <td>{item?.amount}</td>
@@ -148,47 +149,45 @@ const ScreenHome = ({
                         </td>
                       </tr>
                     );
-                  })
-                )}
-              </tbody>
-            </table>
+                  })}
+                </tbody>
+              </table>
+            )}
+
+            {!orders ||
+              (orders.length === 0 && (
+                <TextComponent>Sem ordens para mostrar...</TextComponent>
+              ))}
           </div>
         </div>
 
         <CardMarket exchangeRates={exchangeRates} loadingRates={loadingRates} />
       </div>
 
-      <div className="container-table-style-default">
+      <div
+        className="container-table-style-default"
+        style={{ maxHeight: 300, minHeight: 300, overflowY: "auto" }}
+      >
         <TextComponent style={{ marginBottom: 20 }}>
-          Minhas ordens
+          Minhas Ordens
         </TextComponent>
-        <table className="table">
-          <thead>
-            <tr>
-              <th scope="col">Valor BTC</th>
-              <th scope="col">Valor USD</th>
-              <th scope="col">Tipo</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {loadingOrders ? (
-              <LoadingComponent />
-            ) : !myOrders || myOrders?.length === 0 ? (
+
+        {loadingOrders ? (
+          <LoadingComponent />
+        ) : (
+          <table className="table">
+            <thead>
               <tr>
-                <td>
-                  <TextComponent style={{ color: "black", marginTop: 10 }}>
-                    Sem ordens para mostrar...
-                  </TextComponent>
-                </td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <th scope="col">Moeda BTC</th>
+                <th scope="col">Valor em USD</th>
+                <th scope="col">Tipo</th>
+                <th scope="col"></th>
               </tr>
-            ) : (
-              myOrders?.map((item, index) => {
+            </thead>
+            <tbody>
+              {myOrders?.map((item, index) => {
                 return (
-                  <tr key={item?.id + index}>
+                  <tr key={item.id + index}>
                     <td>{item?.amount}</td>
                     <td>{defineBitcoinValueInUsd(String(item?.amount))}</td>
                     <td>{translatorType[item?.type]}</td>
@@ -206,10 +205,83 @@ const ScreenHome = ({
                     </td>
                   </tr>
                 );
-              })
-            )}
-          </tbody>
-        </table>
+              })}
+            </tbody>
+          </table>
+        )}
+
+        {!myOrders ||
+          (myOrders.length === 0 && (
+            <TextComponent>Sem ordens para mostrar...</TextComponent>
+          ))}
+      </div>
+
+      <div className="container-table-last-transaction-and-my-transaction">
+        <div
+          className="container-table-style-default"
+          style={{ maxHeight: 300, minHeight: 300, overflowY: "auto" }}
+        >
+          <TextComponent style={{ marginBottom: 20 }}>
+            Últimas transações globais
+          </TextComponent>
+          {loadingTransactions ? (
+            <LoadingComponent />
+          ) : (
+            <table className="table">
+              <thead>
+                <tr>
+                  <th scope="col">Conversão</th>
+                  <th scope="col">Remetente</th>
+                  <th scope="col">Destinatário</th>
+                  <th scope="col">Valor</th>
+                  <th scope="col">Tipo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {transactions?.map((item, index) => (
+                  <tr key={item?.id + index}>
+                    <td>{`BTC -> BTC`}</td>
+                    <td>{item?.walletSenderId}</td>
+                    <td>{item?.walletReceiverId}</td>
+                    <td>{item?.amount}</td>
+                    <td>{item?.kind === "debit" ? "Débito" : "Crédito"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        <div
+          className="container-table-style-default"
+          style={{ maxHeight: 300, minHeight: 300, overflowY: "auto" }}
+        >
+          <TextComponent style={{ marginBottom: 20 }}>
+            Minhas últimas transações
+          </TextComponent>
+          <table className="table">
+            <thead>
+              <tr>
+                <th scope="col">Conversão</th>
+                <th scope="col">Remetente</th>
+                <th scope="col">Destinatário</th>
+                <th scope="col">Valor</th>
+                <th scope="col">Tipo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {myTransactions?.map((item, index) => (
+                <tr key={item?.id + index}>
+                  <td>{`BTC -> BTC`}</td>
+                  <td>{item?.walletSenderId}</td>
+                  <td>{item?.walletReceiverId}</td>
+                  <td>{item?.amount}</td>
+                  <td>{item?.kind === "debit" ? "Débito" : "Crédito"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div className="container-table-style-default">
@@ -245,88 +317,6 @@ const ScreenHome = ({
             </tr>
           </tbody>
         </table>
-      </div>
-
-      <div className="container-table-last-transaction-and-my-transaction">
-        <div className="container-table-style-default">
-          <TextComponent style={{ marginBottom: 20 }}>
-            Últimas transações globais
-          </TextComponent>
-          <table className="table">
-            <thead>
-              <tr>
-                <th scope="col">Conversão</th>
-                <th scope="col">Volume</th>
-                <th scope="col">Valor</th>
-                <th scope="col">Taxa</th>
-                <th scope="col">Tipo</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{`USD -> BTC`}</td>
-                <td>49.223</td>
-                <td>0.004</td>
-                <td>0.004</td>
-                <td>Compra</td>
-              </tr>
-              <tr>
-                <td>{`USD -> BTC`}</td>
-                <td>49.223</td>
-                <td>0.004</td>
-                <td>0.004</td>
-                <td>Compra</td>
-              </tr>
-              <tr>
-                <td>{`USD -> BTC`}</td>
-                <td>49.223</td>
-                <td>0.004</td>
-                <td>0.004</td>
-                <td>Compra</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div className="container-table-style-default">
-          <TextComponent style={{ marginBottom: 20 }}>
-            Minhas últimas transações
-          </TextComponent>
-          <table className="table">
-            <thead>
-              <tr>
-                <th scope="col">Conversão</th>
-                <th scope="col">Volume</th>
-                <th scope="col">Valor</th>
-                <th scope="col">Taxa</th>
-                <th scope="col">Tipo</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{`USD -> BTC`}</td>
-                <td>49.223</td>
-                <td>0.004</td>
-                <td>0.004</td>
-                <td>Compra</td>
-              </tr>
-              <tr>
-                <td>{`USD -> BTC`}</td>
-                <td>49.223</td>
-                <td>0.004</td>
-                <td>0.004</td>
-                <td>Compra</td>
-              </tr>
-              <tr>
-                <td>{`USD -> BTC`}</td>
-                <td>49.223</td>
-                <td>0.004</td>
-                <td>0.004</td>
-                <td>Compra</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
       </div>
     </Layout>
   );

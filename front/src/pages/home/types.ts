@@ -31,3 +31,14 @@ export interface Order {
   type: string;
   status: string;
 }
+
+export interface Transaction {
+  id: number;
+  walletSenderId: number;
+  walletReceiverId: number;
+  currencyId: number;
+  amount: string;
+  kind: "debit" | "credit";
+  createdAt: string;
+  updatedAt: string;
+}
