@@ -25,11 +25,6 @@ const CardMarket = ({
   } | null>(null);
   const [loadingFee, setLoadingFee] = useState(false);
 
-  // const translatorFunction = {
-  //   buy: () => {},
-  //   sell: () => {},
-  // };
-
   const translatorButton = {
     sell: "Vender",
     buy: "Comprar",
@@ -81,6 +76,18 @@ const CardMarket = ({
     return applyMaskCoin(String(valueInUSD?.toFixed(2)), "USD");
   };
 
+  const handleMakeOrder = () => {
+    if (!socketInstance) {
+      return toast.error("Por favor, faça o login novamente.");
+    }
+
+    socketInstance.emit("make_order", {
+      amount: Number(Number(bitcoinValue)?.toFixed(8)),
+      coin: "BTC",
+      type,
+    });
+  };
+
   useEffect(() => {
     findFee();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -90,9 +97,16 @@ const CardMarket = ({
     if (socketInstance) {
       socketInstance.on("fee_exchange_values", ({ data, error }) => {
         if (error) {
-          toast.error(error);
+          return toast.error(error);
         }
         setFee(data);
+      });
+
+      socketInstance.on("make_order_response", ({ data, error }) => {
+        if (error) {
+          return toast.error(error);
+        }
+        if (data) return toast.success("Ordem criada com suscesso!");
       });
     }
   }, [socketInstance]);
@@ -198,6 +212,7 @@ const CardMarket = ({
         <button
           type="button"
           className={`btn btn-dark ${disableButton && "button-not-touchable"}`}
+          onClick={disableButton ? () => {} : () => handleMakeOrder()}
         >
           {translatorButton[type]}
         </button>

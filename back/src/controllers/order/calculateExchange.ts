@@ -2,18 +2,18 @@ import { z } from "zod";
 import Orders from "../../database/models/orders";
 import Currencies from "../../database/models/currencies";
 
-const walletSchema = z.object({
+const exchangeSchema = z.object({
   value: z.number(),
   coin: z.enum(["USD", "BTC"]),
   type: z.enum(["buy", "sell"]),
 });
 
-type ExchangeInfo = z.infer<typeof walletSchema>;
+type ExchangeInfo = z.infer<typeof exchangeSchema>;
 const MAKER_FEE = 5;
 const TAKER_FEE = 3;
 class CalculateEchange {
   async execute(exhangeInfo: ExchangeInfo) {
-    const validate = walletSchema.safeParse(exhangeInfo);
+    const validate = exchangeSchema.safeParse(exhangeInfo);
 
     if (!validate.success) {
       return {
