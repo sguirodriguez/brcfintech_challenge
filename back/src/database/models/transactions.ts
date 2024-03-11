@@ -79,18 +79,18 @@ Transactions.init(
 );
 
 Transactions.belongsTo(Wallets, {
-  foreignKey: 'walletSenderId',
-  as: 'wallets',
-})
+  foreignKey: "walletSenderId",
+  as: "senderWallet",
+});
 
 Transactions.belongsTo(Wallets, {
-  foreignKey: 'walletReceiverId',
-  as: 'wallets',
-})
+  foreignKey: "walletReceiverId",
+  as: "receiverWallet",
+});
 
 Transactions.belongsTo(Currencies, {
-  foreignKey: 'currencyId',
-  as: 'currencies',
-})
+  foreignKey: "currencyId",
+  as: "currencies",
+});
 
 export default Transactions;

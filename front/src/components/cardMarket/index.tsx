@@ -194,7 +194,7 @@ const CardMarket = ({
                   {`* Uma taxa de ${fee?.fee}% será cobrada`}
                   <br />
                   <br />
-                  taxa: {getValueFeeInUsd()} USD
+                  taxa: {Number(fee?.value)} BTC
                 </TextComponent>
               )
             )}

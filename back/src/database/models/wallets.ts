@@ -1,74 +1,91 @@
-import { Model } from "sequelize";
-import sequelize from "sequelize";
-import db from "./index";
+import { Model, DataTypes, Transaction } from "sequelize";
+import sequelize from "./index";
 import Users from "./users";
 import Currencies from "./currencies";
 
 class Wallets extends Model {
-  declare id: number;
-  declare userId: number;
-  declare currencyId: number;
-  declare balance: number;
-  declare createdAt: string;
-  declare updatedAt: string;
+  id!: number;
+  userId!: number;
+  currencyId!: number;
+  balance!: number;
+  createdAt!: Date;
+  updatedAt!: Date;
+
+  static async bulkUpdate(
+    updates: { balance: number; id: any }[],
+    options: { transaction: Transaction }
+  ): Promise<number[]> {
+    const updatedRows: number[] = [];
+
+    for (const update of updates) {
+      const [numUpdatedRows] = await this.update(
+        { balance: update.balance },
+        { where: { id: update.id }, transaction: options.transaction }
+      );
+
+      updatedRows.push(numUpdatedRows);
+    }
+
+    return updatedRows;
+  }
 }
 
 Wallets.init(
   {
     id: {
-        type: sequelize.INTEGER,
-        autoIncrement: true,
-        allowNull: false,
-        primaryKey: true
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      allowNull: false,
+      primaryKey: true,
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      field: "user_id",
+      references: {
+        model: Users,
+        key: "id",
       },
-      userId: {
-        type: sequelize.INTEGER,
-        allowNull: false,
-        field: 'user_id',
-        references:{
-          model: 'users',
-          key: 'id'
-        }
+    },
+    currencyId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      field: "currency_id",
+      references: {
+        model: Currencies,
+        key: "id",
       },
-      currencyId: {
-        type: sequelize.INTEGER,
-        allowNull: false,
-        field: 'currency_id',
-        references:{
-          model: 'currencies',
-          key: 'id'
-        }
-      },
-      balance: {
-        type: sequelize.DECIMAL(20, 8),
-        allowNull: false,
-      },
-      createdAt: {
-        type: sequelize.DATE,
-        allowNull: false,
-        field: "created_at",
-      },
-      updatedAt: {
-        type: sequelize.DATE,
-        allowNull: false,
-        field: "updated_at",
-      }
+    },
+    balance: {
+      type: DataTypes.DECIMAL(20, 8),
+      allowNull: false,
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: "created_at",
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: "updated_at",
+    },
   },
   {
-    sequelize: db,
+    sequelize,
     tableName: "wallets",
     underscored: true,
   }
 );
 
 Wallets.belongsTo(Users, {
-  foreignKey: 'userId',
-  as: 'users',
-})
+  foreignKey: "userId",
+  as: "users",
+});
 
 Wallets.belongsTo(Currencies, {
-  foreignKey: 'currencyId',
-  as: 'currencies',
-})
+  foreignKey: "currencyId",
+  as: "currencies",
+});
 
-export default Wallets
+export default Wallets;
