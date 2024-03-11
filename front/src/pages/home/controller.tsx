@@ -45,6 +45,19 @@ const ControllerHome = () => {
     socketInstance.emit("delete_my_order", { orderId });
   };
 
+  const handleCompleteOrder = (payload: {
+    amount: number;
+    coin: "BTC" | "USD";
+    type: string;
+    orderId: number;
+  }) => {
+    if (!payload.orderId) {
+      return toast.error("é necessário selecionar uma ordem.");
+    }
+
+    socketInstance.emit("complete_order", { ...payload });
+  };
+
   useEffect(() => {
     if (socketInstance) {
       socketInstance.on("user_token", (data) => {
@@ -97,6 +110,14 @@ const ControllerHome = () => {
 
         return toast.success("Ordem cancelada.");
       });
+
+      socketInstance.on("complete_order_response", ({ error }) => {
+        if (error) {
+          return toast.error(error);
+        }
+
+        return toast.success("Ordem completada com sucesso.");
+      });
     }
 
     if (!socketInstance) return;
@@ -117,6 +138,12 @@ const ControllerHome = () => {
     loadingOrders: boolean;
     myOrders: Order[] | null;
     handleDeleteOrder: (orderId: number) => void;
+    handleCompleteOrder: (payload: {
+      amount: number;
+      coin: "BTC" | "USD";
+      type: "buy" | "sell";
+      orderId: number;
+    }) => void;
   } = {
     balances,
     loadingBalances,
@@ -126,6 +153,7 @@ const ControllerHome = () => {
     loadingOrders,
     myOrders,
     handleDeleteOrder,
+    handleCompleteOrder,
   };
   return <ScreenHome handlers={handlers} />;
 };

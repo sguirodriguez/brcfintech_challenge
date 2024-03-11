@@ -22,6 +22,12 @@ const ScreenHome = ({
     loadingOrders: boolean;
     myOrders: Order[] | null;
     handleDeleteOrder: (orderId: number) => void;
+    handleCompleteOrder: (payload: {
+      amount: number;
+      coin: "BTC" | "USD";
+      type: string;
+      orderId: number;
+    }) => void;
   };
 }) => {
   const {
@@ -33,6 +39,7 @@ const ScreenHome = ({
     loadingOrders,
     myOrders,
     handleDeleteOrder,
+    handleCompleteOrder,
   } = handlers;
   const translatorType = {
     buy: "Compra",
@@ -105,12 +112,18 @@ const ScreenHome = ({
                         <td>{defineBitcoinValueInUsd(String(item?.amount))}</td>
                         <td>{translatorType[item?.type]}</td>
                         <td>
-                          {item?.type === "buy" ? (
+                          {item?.type !== "buy" ? (
                             <button
                               type="button"
                               className="btn btn-primary"
                               onClick={(event) => {
                                 event.preventDefault();
+                                handleCompleteOrder({
+                                  amount: Number(item?.amount),
+                                  coin: "BTC",
+                                  orderId: item?.id,
+                                  type: item?.type,
+                                });
                               }}
                             >
                               Comprar
@@ -121,7 +134,12 @@ const ScreenHome = ({
                               className="btn btn-danger"
                               onClick={(event) => {
                                 event.preventDefault();
-                                handleDeleteOrder(item.id);
+                                handleCompleteOrder({
+                                  amount: Number(item?.amount),
+                                  coin: "BTC",
+                                  orderId: item?.id,
+                                  type: item?.type,
+                                });
                               }}
                             >
                               Vender

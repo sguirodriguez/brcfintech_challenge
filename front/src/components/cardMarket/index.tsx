@@ -73,10 +73,10 @@ const CardMarket = ({
     }, 2000);
   };
 
-  // const _getValueFeeInUsd = () => {
-  //   const valueInUSD = Number(fee?.value) * exchangeRates?.usdToBitcoinRate;
-  //   return applyMaskCoin(String(valueInUSD?.toFixed(2)), "USD");
-  // };
+  const getValueFeeInUsd = () => {
+    const valueInUSD = Number(fee?.value) * exchangeRates?.usdToBitcoinRate;
+    return applyMaskCoin(String(valueInUSD?.toFixed(2)), "USD");
+  };
 
   const handleMakeOrder = () => {
     if (!socketInstance) {
@@ -198,6 +198,9 @@ const CardMarket = ({
                   <br />
                   <br />
                   taxa: {Number(fee?.value)} BTC
+                  <br />
+                  <br />
+                  aproximadamente: {getValueFeeInUsd()} USD
                 </TextComponent>
               )
             )}
