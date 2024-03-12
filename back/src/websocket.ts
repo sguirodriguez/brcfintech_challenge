@@ -2,14 +2,26 @@ import { socketIo } from "./app";
 import calculateExchange from "./controllers/order/calculateExchange";
 import findAllOrders from "./controllers/order/findAllOrders";
 import findOrders from "./controllers/order/find";
-import makerOrder from "./controllers/order/makerOrder";
 import deleteOrder from "./controllers/order/delete";
 import socketAuthMiddleware from "./middleware/socketAuth";
 import userInfo from "./services/partners/userInfo";
 import findUserBalances from "./controllers/wallets/findUserBalances";
-import completeOrder from "./controllers/order/completeOrder";
 import findAllTransactions from "./controllers/transaction/findAll";
 import findTransactions from "./controllers/transaction/find";
+import Redis from "ioredis";
+import redisAction from "./services/adapters/redis";
+
+export const redis = new Redis(
+  "redis://default:97c95ee1355b47458b1c93b5e5a73dc4@precious-mayfly-45394.upstash.io:45394"
+);
+
+redis.on("connect", () => {
+  console.log("conectado ao servidor Redis");
+});
+
+redis.on("error", (error) => {
+  console.error("erro ao conectar ao servidor Redis:", error);
+});
 
 socketIo.use((socket, next) => {
   socketAuthMiddleware(socket, (error) => {
@@ -84,17 +96,54 @@ socketIo.on("connection", (socket) => {
       );
 
       if (user?.id) {
-        const { response } = await makerOrder.execute({
-          ...data,
-          userId: user?.id,
+        await redisAction.addToOrderQueue({
+          amount: data.amount,
+          coin: data.coin,
+          type: data.type,
+          userId: user.id,
+          typeFunction: "make",
         });
 
         socket.emit("make_order_response", {
-          data: response?.data,
-          error: response.error,
+          data: true,
+          error: false,
+        });
+      }
+    } catch (error) {
+      console.log("SOCKET ERROR:", error);
+    }
+  });
+
+  socket.on("complete_order", async (data) => {
+    try {
+      const authToken = socket.handshake.headers["authorization"];
+
+      if (!authToken) {
+        return socket.emit("complete_order_response", {
+          error: "Não foi possível encontrar o usuário, faça login novamente.",
+        });
+      }
+
+      const user = await userInfo.getUserInfoSocket(
+        authToken,
+        socket,
+        "complete_order_response"
+      );
+
+      if (user?.id) {
+        await redisAction.addToOrderQueue({
+          amount: data.amount,
+          coin: data.coin,
+          type: data.type,
+          userId: user.id,
+          typeFunction: "complete",
+          orderId: data.orderId,
         });
 
-        socketIo.emit("repeat_get_all_orders");
+        socket.emit("complete_order_response", {
+          data: true,
+          error: false,
+        });
       }
     } catch (error) {
       console.log("SOCKET ERROR:", error);
@@ -170,41 +219,7 @@ socketIo.on("connection", (socket) => {
         error: response.error,
       });
 
-      socketIo.emit("repeat_get_all_orders");
-    } catch (error) {
-      console.log("SOCKET ERROR:", error);
-    }
-  });
-
-  socket.on("complete_order", async (data) => {
-    try {
-      const authToken = socket.handshake.headers["authorization"];
-
-      if (!authToken) {
-        return socket.emit("complete_order_response", {
-          error: "Não foi possível encontrar o usuário, faça login novamente.",
-        });
-      }
-
-      const user = await userInfo.getUserInfoSocket(
-        authToken,
-        socket,
-        "complete_order_response"
-      );
-
-      if (user?.id) {
-        await completeOrder.execute({
-          ...data,
-          userId: user?.id,
-        });
-
-        socket.emit("complete_order_response", {
-          data: false,
-          error: true,
-        });
-
-        socketIo.emit("repeat_get_all_orders");
-      }
+      socketIo.emit("repeat_get_my_orders");
     } catch (error) {
       console.log("SOCKET ERROR:", error);
     }
