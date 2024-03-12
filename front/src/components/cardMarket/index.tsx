@@ -109,7 +109,7 @@ const CardMarket = ({
         if (error) {
           return toast.error(error);
         }
-        if (data) return toast.success("Ordem criada com suscesso!");
+        if (data) return toast.success("Ordem colocada na fila com sucesso!");
       });
     }
   }, [socketInstance]);

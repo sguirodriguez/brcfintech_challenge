@@ -75,13 +75,22 @@ const ControllerHome = () => {
       socketInstance.emit("get_my_transactions");
 
       socketInstance.on("repeat_get_all_orders", () => {
-        setLoadingBalances(true);
         setLoadingTransactions(true);
         socketInstance.emit("get_all_orders");
-        socketInstance.emit("get_user_balances");
+      });
+
+      socketInstance.on("repeat_get_my_orders", () => {
         socketInstance.emit("my_orders");
+      });
+
+      socketInstance.on("repeat_get_transactions", () => {
         socketInstance.emit("get_all_transactions");
         socketInstance.emit("get_my_transactions");
+      });
+
+      socketInstance.on("repeat_get_balances", () => {
+        setLoadingBalances(true);
+        socketInstance.emit("get_user_balances");
       });
 
       socketInstance.on("get_user_balances_response", ({ data, error }) => {
@@ -127,7 +136,7 @@ const ControllerHome = () => {
           return toast.error(error);
         }
 
-        return toast.success("Ordem completada com sucesso.");
+        return toast.success("Ordem colocada na fila com sucesso.");
       });
 
       socketInstance.on("get_all_transactions_response", ({ data, error }) => {
@@ -148,6 +157,22 @@ const ControllerHome = () => {
         }
 
         setMyTransactions(data);
+      });
+
+      socketInstance.on("get_response_completed_order", ({ error }) => {
+        if (error) {
+          return toast.error(error);
+        }
+
+        return toast.success("Ordem executada com sucesso.");
+      });
+
+      socketInstance.on("make_order_executed", ({ error }) => {
+        if (error) {
+          return toast.error(error);
+        }
+
+        return toast.success("Ordem criada com sucesso.");
       });
     }
 
