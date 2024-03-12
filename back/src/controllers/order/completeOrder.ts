@@ -6,7 +6,7 @@ import sequelize from "../../database/models";
 import calculateExchange from "./calculateExchange";
 import Transactions from "../../database/models/transactions";
 import exchangeRate from "./exchangeRate";
-import { Order } from "sequelize";
+import { Order, Transaction } from "sequelize";
 
 const orderSchema = z.object({
   userId: z.number(),
@@ -254,9 +254,38 @@ class CompleteOrder {
       fixed: 2,
     });
 
+    async function updateWalletBalance(
+      walletId: number,
+      balanceUpdate: number,
+      transaction: Transaction
+    ) {
+      await Wallets.update(
+        { balance: sequelize.literal(`${balanceUpdate}`) },
+        { where: { id: walletId }, transaction }
+      );
+    }
+
     const makeTransactionOderAndDiscount = await sequelize.transaction(
-      async (t) => {
-        //who is buying BTC - DEBIT
+      async (t: Transaction) => {
+        const senderBalanceUpdate =
+          wallet?.currencies?.symbol === "BTC"
+            ? valueBTCWhoEmit || 0
+            : valueUSDWhoEmit || 0;
+        const destinationBalanceUpdate =
+          walletDestination?.currencies?.symbol === "BTC"
+            ? valueBTCWhoEmit || 0
+            : valueUSDWhoEmit || 0;
+
+        const ownerOrderBalanceUpdate =
+          walletOwnerOrder?.currencies?.symbol === "BTC"
+            ? valueUSDWhoListening || 0
+            : valueBTCWhoListening || 0;
+
+        const destinationOwnerOrderBalanceUpdate =
+          walletDestinationOwnerOrder?.currencies?.symbol === "BTC"
+            ? valueBTCWhoListening || 0
+            : valueUSDWhoListening || 0;
+
         await Transactions.create(
           {
             walletSenderId: walletDestination.id,
@@ -272,68 +301,29 @@ class CompleteOrder {
           { transaction: t }
         );
 
-        await Wallets.update(
-          {
-            balance: sequelize.literal(
-              `${
-                wallet?.currencies?.symbol === "BTC"
-                  ? valueBTCWhoEmit
-                  : valueUSDWhoEmit
-              }`
-            ),
-          },
-          { where: { id: wallet.id }, transaction: t }
+        await updateWalletBalance(wallet.id, senderBalanceUpdate, t);
+
+        await updateWalletBalance(
+          walletDestination.id,
+          destinationBalanceUpdate,
+          t
         );
 
-        await Wallets.update(
-          {
-            balance: sequelize.literal(
-              `${
-                walletDestination?.currencies?.symbol === "BTC"
-                  ? valueBTCWhoEmit
-                  : valueUSDWhoEmit
-              }`
-            ),
-          },
-          { where: { id: walletDestination.id }, transaction: t }
+        await updateWalletBalance(
+          walletOwnerOrder.id,
+          ownerOrderBalanceUpdate,
+          t
         );
 
-        await Wallets.update(
-          {
-            balance: sequelize.literal(
-              `${
-                walletOwnerOrder?.currencies?.symbol === "BTC"
-                  ? valueUSDWhoListening
-                  : valueBTCWhoListening
-              }`
-            ),
-          },
-          { where: { id: walletOwnerOrder.id }, transaction: t }
-        );
-
-        await Wallets.update(
-          {
-            balance: sequelize.literal(
-              `${
-                walletDestinationOwnerOrder?.currencies?.symbol === "BTC"
-                  ? valueBTCWhoListening
-                  : valueUSDWhoListening
-              }`
-            ),
-          },
-          { where: { id: walletDestinationOwnerOrder.id }, transaction: t }
+        await updateWalletBalance(
+          walletDestinationOwnerOrder.id,
+          destinationOwnerOrderBalanceUpdate,
+          t
         );
 
         await Orders.update(
-          {
-            status: "completed",
-          },
-          {
-            where: {
-              id: order.id,
-            },
-            transaction: t,
-          }
+          { status: "completed" },
+          { where: { id: order.id }, transaction: t }
         );
 
         return {
