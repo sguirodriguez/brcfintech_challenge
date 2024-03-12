@@ -1,6 +1,6 @@
 ## Pré-requisitos
 
-Certifique-se de ter o [Node.js](https://nodejs.org/) e o [Yarn](https://yarnpkg.com/) instalados em sua máquina.
+Certifique-se de ter o [Node.js] e o [npm] instalados em sua máquina.
 
 ## Instalação
 
@@ -13,5 +13,5 @@ Certifique-se de ter o [Node.js](https://nodejs.org/) e o [Yarn](https://yarnpkg
 2. Execute o seguinte comando para iniciar o front:
 
 ```bash
-    npm run dev OU npm run start
+    npm run dev | npm run start
 ```
