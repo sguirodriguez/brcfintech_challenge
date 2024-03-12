@@ -57,11 +57,7 @@ const ScreenHome = ({
     const valueInUSD = Number(value) * exchangeRates?.usdToBitcoinRate;
     return applyMaskCoin(String(valueInUSD?.toFixed(2)), "USD");
   };
-  // !orders || orders?.length === 0 ? (
-  //   <TextComponent style={{ color: "black", marginTop: 50 }}>
-  //     Sem ordens para mostrar...
-  //   </TextComponent>
-  // ) :
+
   return (
     <Layout>
       <div className="container-card-and-table-global">
@@ -240,7 +236,12 @@ const ScreenHome = ({
               <tbody>
                 {transactions?.map((item, index) => (
                   <tr key={item?.id + index}>
-                    <td>{`BTC -> BTC`}</td>
+                    <td>
+                      {" "}
+                      {item?.currencies?.symbol !== "BTC"
+                        ? `USD -> USD`
+                        : `BTC -> BTC`}
+                    </td>
                     <td>{item?.walletSenderId}</td>
                     <td>{item?.walletReceiverId}</td>
                     <td>{item?.amount}</td>
@@ -272,7 +273,11 @@ const ScreenHome = ({
             <tbody>
               {myTransactions?.map((item, index) => (
                 <tr key={item?.id + index}>
-                  <td>{`BTC -> BTC`}</td>
+                  <td>
+                    {item?.currencies?.symbol !== "BTC"
+                      ? `USD -> USD`
+                      : `BTC -> BTC`}
+                  </td>
                   <td>{item?.walletSenderId}</td>
                   <td>{item?.walletReceiverId}</td>
                   <td>{item?.amount}</td>

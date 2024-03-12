@@ -41,4 +41,5 @@ export interface Transaction {
   kind: "debit" | "credit";
   createdAt: string;
   updatedAt: string;
+  currencies: any;
 }

@@ -372,12 +372,57 @@ class MakeOrder {
             walletSenderId: walletDestination.id,
             walletReceiverId: walletOwnerOrder.id,
             orderId: order.id,
+            currencyId: walletDestination?.currencies?.id,
+            amount:
+              walletDestination?.currencies?.symbol === "BTC"
+                ? Number(order?.amount)
+                : getValueDiscountInUSD(order?.amount),
+            kind: "credit",
+          },
+          { transaction: t }
+        );
+
+        await Transactions.create(
+          {
+            walletSenderId: walletOwnerOrder.id,
+            walletReceiverId: walletDestination.id,
+            orderId: order.id,
+            currencyId: walletDestination?.currencies?.id,
+            amount:
+              walletDestination?.currencies?.symbol === "BTC"
+                ? Number(order?.amount)
+                : getValueDiscountInUSD(order?.amount),
+            kind: "debit",
+          },
+          { transaction: t }
+        );
+
+        await Transactions.create(
+          {
+            walletSenderId: wallet.id,
+            walletReceiverId: walletDestinationOwnerOrder.id,
+            orderId: order.id,
             currencyId: wallet?.currencies?.id,
             amount:
               wallet?.currencies?.symbol === "BTC"
                 ? Number(order?.amount)
                 : getValueDiscountInUSD(order?.amount),
             kind: "debit",
+          },
+          { transaction: t }
+        );
+
+        await Transactions.create(
+          {
+            walletSenderId: walletDestinationOwnerOrder.id,
+            walletReceiverId: wallet.id,
+            orderId: order.id,
+            currencyId: wallet?.currencies?.id,
+            amount:
+              wallet?.currencies?.symbol === "BTC"
+                ? Number(order?.amount)
+                : getValueDiscountInUSD(order?.amount),
+            kind: "credit",
           },
           { transaction: t }
         );
