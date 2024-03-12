@@ -1,17 +1,25 @@
-Desafio BRC FINTECH
-Projeto consiste em fazer uma aplicação web para simular transações de criptomoedas, 
-tecnologias utilizadas React, Bootstrap, Sass, Socket.io, Redis, Node.JS e Sequelize.
+# Desafio BRC FINTECH
 
-Pré-requisitos
-Certifique-se de ter o Node.js e o npm instalados em sua máquina.
-node version: 18.6.0
+O Projeto consiste em fazer uma aplicação web para simular transações de criptomoedas.
 
-Importante
-Para poder rodar o projeto será necessário abrir as pastas front e back separadamentes, seguir ao readme de cada um para rodar o projeto, mas antes rode os seguintes comandos:
+## Tecnologias
 
-Instalação
-Clone este repositório:
-git clone https://github.com/seu-usuario/seu-projeto.git
+- [React](https://react.dev/)
+- [Bootstrap](https://getbootstrap.com/)
+- [Sass](https://sass-lang.com/)
+- [Socket.io](https://socket.io/)
+- [Redis](https://redis.io/)
+- [Node.JS](https://nodejs.org/api/documentation.html)
+- [Sequelize](https://sequelize.org/)
 
--> acesse a pasta front e siga o readme
--> acesse a pasta back e siga o readme
+## Instalação
+
+- Certifique-se do Node.js instalado (18.6.0)
+
+- Certifique-se do NPM instalado
+
+- Clone este repositório, exemplo: https://github.com/seu-usuario/seu-projeto.git
+
+- Acesse a pasta front e siga o README
+
+- Acesse a pasta back e siga o README
