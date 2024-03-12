@@ -37,3 +37,23 @@ Para rodar esse projeto, você vai precisar adicionar as seguintes variáveis de
 ```bash
     npm run dev
 ```
+
+## Documentação da API
+
+#### Faz login na aplicação
+
+```http
+  POST /login
+```
+
+###### Retona os seguintes parâmetros
+
+| Parâmetro  | Tipo     | Descrição                                  |
+| :--------- | :------- | :----------------------------------------- |
+| `id`       | `number` |                                            |
+| `username` | `string` |                                            |
+| `token`    | `string` | **Obrigatório**. para fazer as requisições |
+
+#### Segue collection do postman para ver as API'S:
+
+- [link para a collection](https://www.postman.com/security-technologist-45772221/workspace/brc-challenge/collection/31169427-c30318e5-e463-44ee-8819-6a62cd042930?action=share&creator=31169427)
